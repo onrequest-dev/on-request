@@ -4,90 +4,103 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../../lib/utils";
-import { 
-  Smartphone, 
-  Monitor, 
-  Globe, 
-  Cpu, 
+import {
+  Smartphone,
+  Monitor,
+  Globe,
+  Cpu,
   CircuitBoard,
   Database,
   Cloud,
   Shield,
   BarChart3,
-  Cog
+  Cog,
+  Rocket,
+  Briefcase,
+  PenTool,
 } from "lucide-react";
 
 // خدمات OnRequest للاستثمارات الرقمية
 const SERVICES = [
   {
+    id: "strategy-consulting",
+    label: "استراتيجية واطلاق المنتج",
+    icon: Rocket, // أو Target أو Compass
+    image: "img/services/strategy.webp",
+    description:
+      "نحول فكرتك إلى خارطة طريق تنفيذية، من دراسة الجدوى التقنية وحتى خطة الذهاب إلى السوق.",
+  },
+  {
+    id: "ui-ux-design",
+    label: "تصميم تجربة المستخدم",
+    icon: PenTool, // أو PenTool أو Layout
+    image: "img/services/uiux.webp",
+    description:
+      "نصمم واجهات احترافية. نبني رحلة مستخدم تزيد من التحويلات وتعكس هويتك.",
+  },
+  {
     id: "mobile-apps",
-    label: "تطبيقات الموبايل",
+    label: "تطبيقات موبايل ",
     icon: Smartphone,
     image: "img/services/appfon.webp",
-    description: "نطور تطبيقات موبايل استثمارية متطورة لنظامي iOS و Android بأعلى معايير الأمان والسرعة.",
+    description:
+      "نبني تطبيقات iOS و Android بأداء سلس وتجربة مستخدم لا تُنسى، مصممة لتدوم وتتوسع.",
+  },
+  {
+    id: "fullstack-web",
+    label: "تطبيقات ويب متكاملة",
+    icon: Globe,
+    image: "img/services/webapp.webp",
+    description:
+      "نطور منصات ويب قوية وسريعة وآمنة. من لوحات التحكم المعقدة إلى منصات الخدمات، نصنع الحل الكامل.",
   },
   {
     id: "desktop-apps",
-    label: "تطبيقات سطح المكتب",
+    label: "برمجيات سطح المكتب",
     icon: Monitor,
     image: "img/services/appdisck.webp",
-    description: "حلول سطح مكتب احترافية لإدارة المحافظ الاستثمارية وتحليل البيانات المالية.",
-  },
-  {
-    id: "websites",
-    label: "مواقع الويب",
-    icon: Globe,
-    image: "img/services/webapp.webp",
-    description: "منصات ويب متكاملة للاستثمار الرقمي مع لوحات تحكم تفاعلية وتقارير لحظية.",
-  },
-  {
-    id: "iot",
-    label: "إنترنت الأشياء",
-    icon: Cpu,
-    image: "img/services/iot.webp",
-    description: "ربط الأجهزة الذكية بمنصات استثمارية لجمع البيانات وتحليلها في الوقت الفعلي.",
-  },
-  {
-    id: "electronics",
-    label: "برمجة الإلكترونيات",
-    icon: CircuitBoard,
-    image: "img/services/electron.webp",
-    description: "تطوير أنظمة إلكترونية ذكية للمعاملات المالية والأتمتة الاستثمارية.",
+    description:
+      "حلول برمجية مخصصة لأنظمة التشغيل المختلفة، نضمن استقراراً وأداءً عالياً لأعمالك الحيوية.",
   },
   {
     id: "databases",
-    label: "قواعد البيانات",
+    label: "هندسة قواعد البيانات",
     icon: Database,
     image: "img/services/databases.webp",
-    description: "تصميم وإدارة قواعد بيانات عالية الأداء للمعاملات المالية والاستثمارية.",
-  },
-  {
-    id: "cloud",
-    label: "الحوسبة السحابية",
-    icon: Cloud,
-    image: "img/services/cloud.webp",
-    description: "بنية تحتية سحابية آمنة ومرنة لتشغيل التطبيقات الاستثمارية على نطاق واسع.",
+    description:
+      "نصمم بنية بيانات عالية الأداء والأمان، تضمن استمرارية عملك حتى أعلى معدلات النمو والاستخدام.",
   },
   {
     id: "security",
-    label: "الأمن السيبراني",
+    label: "تحصين الأمن السيبراني",
     icon: Shield,
     image: "img/services/security.webp",
-    description: "حماية متطورة للبيانات المالية والمعاملات الاستثمارية بأحدث تقنيات التشفير.",
+    description:
+      "لا ننتظر الهجوم. نحمي منتجك الرقمي بشكل استباقي ونضمن سلامة بياناتك وبيانات عملائك.",
   },
   {
     id: "analytics",
-    label: "تحليل البيانات",
+    label: " تحليل البيانات",
     icon: BarChart3,
     image: "img/services/data.webp",
-    description: "أنظمة تحليل متقدمة للأسواق المالية باستخدام الذكاء الاصطناعي وتعلم الآلة.",
+    description:
+      "نحول بياناتك الخام إلى رؤى استراتيجية ومخططات تفاعلية، تمنحك وضوحاً كاملاً لاتخاذ القرار.",
   },
   {
     id: "automation",
-    label: "الأتمتة الذكية",
+    label: "أتمتة العمليات الذكية",
     icon: Cog,
     image: "img/services/otom.webp",
-    description: "أتمتة العمليات الاستثمارية وتنفيذ الصفقات تلقائياً وفق استراتيجيات محددة.",
+    description:
+      "نحرر وقت فريقك من المهام المتكررة بأتمتة ذكية، ليتفرغوا للإبداع والنمو.",
+  },
+  {
+    id: "technical-consulting",
+    label: "استشارات تقنية ",
+    icon: Briefcase, // أو Users أو Lightbulb
+    image: "img/services/consulting.webp",
+    description:
+      "شريك تقني استراتيجي بجانبك. نوفر جلسات استشارية ودراسات تقنية شاملة لحل أصعب التحديات.",
   },
 ];
 
@@ -154,10 +167,14 @@ export function ServicesCarousel() {
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-4">
             حلول رقمية
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-200"> متطورة</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-200">
+              {" "}
+              متطورة
+            </span>
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            نقدم مجموعة متكاملة من الخدمات التقنية لتمكين استثماراتك الرقمية بأحدث التقنيات
+            نقدم مجموعة متكاملة من الخدمات التقنية لتمكين استثماراتك الرقمية
+            بأحدث التقنيات
           </p>
         </motion.div>
 
@@ -168,7 +185,7 @@ export function ServicesCarousel() {
             {/* Gradient Overlays */}
             <div className="absolute inset-x-0 top-0 h-12 md:h-20 lg:h-16 bg-gradient-to-b from-gray-900 via-gray-900/80 to-transparent z-40" />
             <div className="absolute inset-x-0 bottom-0 h-12 md:h-20 lg:h-16 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-40" />
-            
+
             {/* Services List */}
             <div className="relative w-full h-full flex items-center justify-center lg:justify-start z-20">
               {SERVICES.map((service, index) => {
@@ -177,7 +194,7 @@ export function ServicesCarousel() {
                 const wrappedDistance = wrap(
                   -(SERVICES.length / 2),
                   SERVICES.length / 2,
-                  distance
+                  distance,
                 );
 
                 return (
@@ -207,13 +224,15 @@ export function ServicesCarousel() {
                         "relative flex items-center gap-3 px-5 md:px-8 lg:px-6 py-3 md:py-4 lg:py-3 rounded-full transition-all duration-700 text-right group border",
                         isActive
                           ? "bg-purple-500 text-white border-purple-400 shadow-lg shadow-purple-500/25 z-10"
-                          : "bg-transparent text-gray-400 border-gray-700 hover:border-purple-500/50 hover:text-gray-200"
+                          : "bg-transparent text-gray-400 border-gray-700 hover:border-purple-500/50 hover:text-gray-200",
                       )}
                     >
-                      <div className={cn(
-                        "flex items-center justify-center transition-colors duration-500",
-                        isActive ? "text-white" : "text-gray-500"
-                      )}>
+                      <div
+                        className={cn(
+                          "flex items-center justify-center transition-colors duration-500",
+                          isActive ? "text-white" : "text-gray-500",
+                        )}
+                      >
                         <service.icon size={18} strokeWidth={2} />
                       </div>
                       <span className="font-medium text-sm md:text-[15px] whitespace-nowrap">
@@ -230,7 +249,7 @@ export function ServicesCarousel() {
           <div className="flex-1 min-h-[400px] md:min-h-[500px] lg:h-full relative bg-black/50 flex items-center justify-center py-12 md:py-16 lg:py-12 px-6 md:px-10 lg:px-8 overflow-hidden border-t lg:border-t-0 lg:border-l border-purple-500/20">
             {/* Decorative Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
-            
+
             <div className="relative w-full max-w-[380px] aspect-[4/5] flex items-center justify-center">
               {SERVICES.map((service, index) => {
                 const status = getCardStatus(index);
@@ -265,7 +284,7 @@ export function ServicesCarousel() {
                         "w-full h-full object-cover transition-all duration-700",
                         isActive
                           ? "grayscale-0 blur-0 scale-100"
-                          : "grayscale blur-[1px] brightness-50 scale-110"
+                          : "grayscale blur-[1px] brightness-50 scale-110",
                       )}
                     />
 
@@ -314,7 +333,7 @@ export function ServicesCarousel() {
                 "h-1.5 rounded-full transition-all duration-500",
                 index === currentIndex
                   ? "w-8 bg-purple-500"
-                  : "w-1.5 bg-gray-700 hover:bg-gray-600"
+                  : "w-1.5 bg-gray-700 hover:bg-gray-600",
               )}
             />
           ))}

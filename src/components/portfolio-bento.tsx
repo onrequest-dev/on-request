@@ -14,6 +14,7 @@ import {
   ZoomIn,
   Maximize2
 } from "lucide-react";
+import TrustedBy from "./trusted-by";
 
 interface ProjectImage {
   src: string;
@@ -34,105 +35,87 @@ interface Project {
 
 const PROJECTS: Project[] = [
   {
-    id: "trading-platform",
-    title: "منصة التداول الذكي",
-    category: "تطبيق موبايل",
-    description: "منصة متكاملة للتداول الآلي في الأسواق المالية العالمية باستخدام الذكاء الاصطناعي. تدعم أكثر من ١٠٠ أصل مالي مع تحليلات فورية وتنبيهات ذكية على مدار الساعة.",
+    id: "go-order",
+    title: "GoOrder - نظام ادارة المطاعم",
+    category: "desktop | web | mobile",
+    description:
+      "نظام متكامل لإدارة المطاعم من الطلب حتى التوصيل. إدارة فروع، تخصيص كامل للمنيو، وتكامل فوري بين أقسام المطبخ وطاقم الخدمة والعملاء  كل ذلك في منصة واحدة.",
     images: [
-      { src: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200", alt: "لوحة تحكم التداول" },
-      { src: "https://images.unsplash.com/photo-1559526324-593bc073d938?q=80&w=1200", alt: "تحليل الأسواق" },
-      { src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200", alt: "تقارير الأداء" },
+      {
+        src: "/img/go-order/4.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/1.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/2.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/3.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/5.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/6.webp",
+        alt: "",
+      },
+      {
+        src: "/img/go-order/7.webp",
+        alt: "",
+      },
     ],
-    date: "٢٠٢٤",
-    tags: ["تداول", "ذكاء اصطناعي", "أسواق مالية"],
+    date: "2026",
+    tags: ["desktop", "mobile", "web"],
     size: "large",
-    gradient: "from-purple-600 via-purple-500 to-blue-600",
+    gradient: "from-orange-600 via-orange-500 to-yellow-600",
   },
   {
-    id: "wallet-app",
-    title: "محفظة رقمية آمنة",
-    category: "تطبيق موبايل",
-    description: "محفظة رقمية مشفرة لإدارة الأصول الرقمية مع أعلى معايير الأمان. تدعم العملات الرقمية والعملات التقليدية مع حماية متعددة الطبقات.",
+    id: "live-dent",
+    title: "live dent | نظام رقمي لادارة عيادات الاسنان",
+    category: "desktop | web | mobile",
+    description:
+    "لوحة تحكم واحدة تختصر كل التعقيد: سجل طبي إلكتروني، جدولة ذكية للمواعيد، وتتبع مالي دقيق. لا أوراق، لا حجوزات مزدوجة، لا مدفوعات ضائعة."
+    ,
     images: [
-      { src: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?q=80&w=1200", alt: "واجهة المحفظة" },
-      { src: "https://images.unsplash.com/photo-1559526324-593bc073d938?q=80&w=1200", alt: "تحويلات مالية" },
+      {
+        src: "/img/live-dent/4.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/1.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/2.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/3.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/5.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/6.webp",
+        alt: "",
+      },
+      {
+        src: "/img/live-dent/7.webp",
+        alt: "",
+      },
     ],
-    date: "٢٠٢٤",
-    tags: ["محفظة رقمية", "أمان", "عملات رقمية"],
-    size: "tall",
-    gradient: "from-pink-600 to-purple-600",
-  },
-  {
-    id: "analytics-dashboard",
-    title: "لوحة تحليلات استثمارية",
-    category: "موقع ويب",
-    description: "لوحة تحكم احترافية لعرض وتحليل أداء المحافظ الاستثمارية مع رسوم بيانية تفاعلية وتقارير قابلة للتصدير بتنسيقات متعددة.",
-    images: [
-      { src: "https://images.unsplash.com/photo-1551288049-bbda38a10ad5?q=80&w=1200", alt: "لوحة التحليلات" },
-      { src: "https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=1200", alt: "الرسوم البيانية" },
-      { src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200", alt: "تقارير مفصلة" },
-    ],
-    date: "٢٠٢٣",
-    tags: ["تحليلات", "لوحة تحكم", "تقارير"],
-    size: "wide",
-    gradient: "from-blue-600 to-cyan-600",
-  },
-  {
-    id: "iot-system",
-    title: "نظام إنترنت الأشياء",
-    category: "إنترنت الأشياء",
-    description: "نظام متكامل لربط الأجهزة الذكية بمنصات الاستثمار لجمع وتحليل البيانات في الوقت الفعلي مع لوحة تحكم مركزية.",
-    images: [
-      { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200", alt: "أجهزة ذكية" },
-      { src: "https://images.unsplash.com/photo-1555664424-778a1e5e1b48?q=80&w=1200", alt: "لوحة إلكترونية" },
-    ],
-    date: "٢٠٢٣",
-    tags: ["إنترنت الأشياء", "أجهزة ذكية", "بيانات"],
-    size: "small",
-    gradient: "from-green-600 to-emerald-600",
-  },
-  {
-    id: "security-system",
-    title: "نظام أمن سيبراني",
-    category: "أمن المعلومات",
-    description: "نظام حماية متطور للمعاملات المالية والبيانات الاستثمارية باستخدام أحدث تقنيات التشفير والمراقبة المستمرة.",
-    images: [
-      { src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200", alt: "مركز أمني" },
-      { src: "https://images.unsplash.com/photo-1563986768609-322da13575f2?q=80&w=1200", alt: "تشفير البيانات" },
-    ],
-    date: "٢٠٢٤",
-    tags: ["أمن سيبراني", "تشفير", "حماية"],
-    size: "small",
-    gradient: "from-red-600 to-orange-600",
-  },
-  {
-    id: "cloud-platform",
-    title: "منصة سحابية",
-    category: "حوسبة سحابية",
-    description: "بنية تحتية سحابية متكاملة لتشغيل التطبيقات الاستثمارية على نطاق واسع مع قابلية توسع غير محدودة وأداء عالي.",
-    images: [
-      { src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200", alt: "خوادم سحابية" },
-      { src: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200", alt: "مركز بيانات" },
-      { src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200", alt: "بنية تحتية" },
-    ],
-    date: "٢٠٢٤",
-    tags: ["سحابة", "توسع", "خوادم"],
-    size: "medium",
-    gradient: "from-violet-600 to-purple-600",
-  },
-  {
-    id: "ai-advisor",
-    title: "مستشار استثماري ذكي",
-    category: "ذكاء اصطناعي",
-    description: "مساعد استثماري يعمل بالذكاء الاصطناعي يقدم توصيات مخصصة بناءً على تحليل شامل للأسواق وملف المخاطر الشخصي.",
-    images: [
-      { src: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200", alt: "واجهة المستشار" },
-      { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200", alt: "تحليل ذكي" },
-    ],
-    date: "٢٠٢٤",
-    tags: ["ذكاء اصطناعي", "استشارات", "تحليل"],
-    size: "wide",
-    gradient: "from-indigo-600 via-purple-600 to-pink-600",
+    date: "2026",
+    tags: ["desktop", "mobile", "web"],
+    size: "large",
+    gradient: "from-blue-600 via-blue-500 to-blue-400",
   },
 ];
 
@@ -187,11 +170,60 @@ export function PortfolioBento() {
             </span>
           </div>
           <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white mb-6 tracking-tight">
-            مشاريع
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-purple-300 to-purple-200"> مميزة</span>
+            آخر أعمالنا
           </h2>
           <p className="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            مجموعة من أبرز المشاريع التقنية التي طورناها لعملائنا في مجال الاستثمارات الرقمية والأسواق المالية
+            شركاء في إطلاق وتنمية أكثر من{" "}
+            <span className=" text-purple-300 font-bold">12</span> مشروعاً في
+            السوق، بين بناء واستشارة وشراكة تنفيذية.
+          </p>
+          <TrustedBy 
+            title="وضعوا ثقتهم فينا"
+            logos={[
+              {
+                src: "img/partners/1.webp",
+                alt: "nebla store",
+                name: "nebla store",
+              },
+              {
+                src: "img/partners/2.webp",
+                alt: "q-solar",
+                name: "q-solar",
+              },
+              {
+                src: "img/partners/3.webp",
+                alt: "مشفى السلام التخصصي",
+                name: "مشفى السلام التخصصي",
+              },
+              {
+                src: "img/partners/4.webp",
+                alt: "qaddour group",
+                name: "qaddour group",
+              },
+              {
+                src: "img/partners/5.webp",
+                alt: "فريق  ecl الطلابي",
+                name: "فريق ecl الطلابي",
+              },
+              {
+                src: "img/partners/6.webp",
+                alt: "فريق stu voice الجامعي",
+                name: "فريق stu voice الجامعي",
+              },
+              {
+                src: "img/partners/7.webp",
+                alt: "prime cash",
+                name: "prime cash",
+              },
+              {
+                src: "img/partners/8.webp",
+                alt: "dentavio",
+                name: "dentavio",
+              },
+            ]}
+          />
+          <p className="text-gray-300 text-2xl md:text-xl max-w-3xl mx-auto leading-relaxed">
+            أحدث ما أطلقناه :
           </p>
         </motion.div>
 
@@ -203,10 +235,10 @@ export function PortfolioBento() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ 
-                duration: 0.7, 
+              transition={{
+                duration: 0.7,
                 delay: index * 0.1,
-                ease: [0.25, 0.1, 0.25, 1]
+                ease: [0.25, 0.1, 0.25, 1],
               }}
               className={cn(
                 "relative group cursor-pointer overflow-hidden rounded-3xl border border-gray-800/50 hover:border-purple-500/40 transition-all duration-700",
@@ -216,7 +248,7 @@ export function PortfolioBento() {
                 project.size === "tall" && "lg:row-span-2",
                 project.size === "medium" && "xl:row-span-2",
                 // Mobile fallback
-                "col-span-1 row-span-1"
+                "col-span-1 row-span-1",
               )}
               onClick={() => openProject(project)}
             >
@@ -228,25 +260,27 @@ export function PortfolioBento() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.8 }}
               />
-              
+
               {/* Gradient Overlays */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20 opacity-70 group-hover:opacity-90 transition-opacity duration-700" />
-              <div className={cn(
-                "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-30 transition-opacity duration-700",
-                project.gradient
-              )} />
+              <div
+                className={cn(
+                  "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-30 transition-opacity duration-700",
+                  project.gradient,
+                )}
+              />
 
               {/* Top Color Bar */}
-              <div className={cn(
-                "absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700",
-                project.gradient
-              )} />
+              <div
+                className={cn(
+                  "absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700",
+                  project.gradient,
+                )}
+              />
 
               {/* Content */}
               <div className="relative h-full flex flex-col justify-end p-6 md:p-8 xl:p-10">
-                <motion.div 
-                  className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700"
-                >
+                <motion.div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
                   {/* Category Badge */}
                   <div className="flex items-center gap-3 mb-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
                     <span className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-medium border border-white/20">
@@ -316,7 +350,8 @@ export function PortfolioBento() {
                 "relative bg-gray-900/80 backdrop-blur-2xl border border-gray-800/50 shadow-2xl overflow-hidden",
                 // Responsive sizing
                 "w-full h-full md:h-auto md:max-h-[90vh] md:rounded-3xl md:w-[95%] lg:w-[90%] xl:w-[85%] max-w-7xl",
-                isFullscreen && "!w-full !h-full !max-w-none !max-h-none !rounded-none"
+                isFullscreen &&
+                  "!w-full !h-full !max-w-none !max-h-none !rounded-none",
               )}
               onClick={(e) => e.stopPropagation()}
             >
@@ -328,9 +363,11 @@ export function PortfolioBento() {
                     className="flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all duration-300 border border-white/10"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    <span className="text-sm hidden sm:inline">رجوع للمعرض</span>
+                    <span className="text-sm hidden sm:inline">
+                      رجوع للمعرض
+                    </span>
                   </button>
-                  
+
                   {/* Thumbnail Navigation */}
                   <div className="hidden md:flex items-center gap-2 ml-6">
                     {selectedProject.images.map((image, idx) => (
@@ -341,7 +378,7 @@ export function PortfolioBento() {
                           "w-12 h-8 rounded-lg overflow-hidden border-2 transition-all duration-300",
                           idx === currentImageIndex
                             ? "border-purple-500 shadow-lg shadow-purple-500/30"
-                            : "border-white/20 opacity-50 hover:opacity-80"
+                            : "border-white/20 opacity-50 hover:opacity-80",
                         )}
                       >
                         <img
@@ -368,10 +405,14 @@ export function PortfolioBento() {
               </div>
 
               {/* Image Viewer */}
-              <div className={cn(
-                "relative bg-black flex items-center justify-center",
-                isFullscreen ? "h-screen" : "aspect-[16/9] md:aspect-[16/7] lg:aspect-[16/6]"
-              )}>
+              <div
+                className={cn(
+                  "relative bg-black flex items-center justify-center",
+                  isFullscreen
+                    ? "h-screen"
+                    : "aspect-[16/9] md:aspect-[16/7] lg:aspect-[16/6]",
+                )}
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentImageIndex}
@@ -414,10 +455,9 @@ export function PortfolioBento() {
               </div>
 
               {/* Project Details Panel */}
-              <div className={cn(
-                "p-6 md:p-8 lg:p-10",
-                isFullscreen && "hidden"
-              )}>
+              <div
+                className={cn("p-6 md:p-8 lg:p-10", isFullscreen && "hidden")}
+              >
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Main Info */}
                   <div className="md:col-span-2">
@@ -443,7 +483,7 @@ export function PortfolioBento() {
                   {/* Tags & Info */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">التقنيات المستخدمة</h4>
+                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider"></h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedProject.tags.map((tag) => (
                           <span
@@ -459,7 +499,9 @@ export function PortfolioBento() {
 
                     {/* Mobile Thumbnails */}
                     <div className="md:hidden">
-                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">الصور</h4>
+                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">
+                        الصور
+                      </h4>
                       <div className="flex gap-2 overflow-x-auto pb-2">
                         {selectedProject.images.map((image, idx) => (
                           <button
@@ -469,7 +511,7 @@ export function PortfolioBento() {
                               "flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300",
                               idx === currentImageIndex
                                 ? "border-purple-500 shadow-lg shadow-purple-500/25"
-                                : "border-transparent opacity-50 hover:opacity-75"
+                                : "border-transparent opacity-50 hover:opacity-75",
                             )}
                           >
                             <img

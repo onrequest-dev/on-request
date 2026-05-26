@@ -4,10 +4,10 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { 
-  Globe, 
-  Code2, 
-  FileText, 
+import {
+  Globe,
+  Code2,
+  FileText,
   Mail,
   MapPin,
   Briefcase,
@@ -15,7 +15,7 @@ import {
   Quote,
   Sparkles,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 
 function cn(...classes: Array<string | undefined | null | false>) {
@@ -83,16 +83,16 @@ function WaveBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    
+
     let time = 0;
     let animationId: number;
-    
+
     const waveData = Array.from({ length: 5 }).map(() => ({
       value: Math.random() * 0.3 + 0.05,
       targetValue: Math.random() * 0.3 + 0.05,
-      speed: Math.random() * 0.012 + 0.004
+      speed: Math.random() * 0.012 + 0.004,
     }));
 
     function resizeCanvas() {
@@ -102,8 +102,9 @@ function WaveBackground() {
     }
 
     function updateWaveData() {
-      waveData.forEach(data => {
-        if (Math.random() < 0.006) data.targetValue = Math.random() * 0.4 + 0.05;
+      waveData.forEach((data) => {
+        if (Math.random() < 0.006)
+          data.targetValue = Math.random() * 0.4 + 0.05;
         const diff = data.targetValue - data.value;
         data.value += diff * data.speed;
       });
@@ -111,7 +112,7 @@ function WaveBackground() {
 
     function draw() {
       if (!ctx || !canvas) return;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       waveData.forEach((data, i) => {
@@ -120,8 +121,13 @@ function WaveBackground() {
         for (let x = 0; x < canvas.width; x += 2) {
           const nx = (x / canvas.width) * 2 - 1;
           const px = nx + i * 0.025 + freq * 0.018;
-          const py = Math.sin(px * 10 + time) * Math.cos(px * 1.3) * freq * 0.07 * ((i + 1) / 5);
-          const y = (py + 1) * canvas.height / 2;
+          const py =
+            Math.sin(px * 10 + time) *
+            Math.cos(px * 1.3) *
+            freq *
+            0.07 *
+            ((i + 1) / 5);
+          const y = ((py + 1) * canvas.height) / 2;
           x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
         }
         const r = 110 + i * 20;
@@ -143,39 +149,53 @@ function WaveBackground() {
       animationId = requestAnimationFrame(animate);
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
     animate();
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener("resize", resizeCanvas);
       cancelAnimationFrame(animationId);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
+  );
 }
 
 // ==================== كرت العضو ====================
-function MemberFanCard({ item, active }: { item: TeamCardItem; active: boolean }) {
+function MemberFanCard({
+  item,
+  active,
+}: {
+  item: TeamCardItem;
+  active: boolean;
+}) {
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl card-border">
       {/* Grid Background */}
       <div className="absolute inset-0 opacity-[0.03]">
-        <div 
-          className="w-full h-full" 
-          style={{ 
-            backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)', 
-            backgroundSize: '14px 14px' 
-          }} 
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "14px 14px",
+          }}
         />
       </div>
 
       {/* Top Gradient Bar */}
-      <div className={cn(
-        "h-1 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-opacity duration-500",
-        active ? "opacity-100" : "opacity-40"
-      )} />
+      <div
+        className={cn(
+          "h-1 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 transition-opacity duration-500",
+          active ? "opacity-100" : "opacity-40",
+        )}
+      />
 
       <div className="flex h-full">
         {/* Left: Image */}
@@ -188,10 +208,10 @@ function MemberFanCard({ item, active }: { item: TeamCardItem; active: boolean }
               draggable={false}
             />
           </div>
-          
+
           {/* Status Badge */}
           {active && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               className="absolute top-4 left-4 flex items-center gap-1.5 glass px-2 py-0.5 rounded-full border border-white/10"
@@ -221,31 +241,51 @@ function MemberFanCard({ item, active }: { item: TeamCardItem; active: boolean }
           </p>
 
           {/* Quick Links */}
-          <div className={cn(
-            "flex items-center gap-1.5 transition-all duration-500",
-            active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-1.5 transition-all duration-500",
+              active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1",
+            )}
+          >
             {item.linkedin && (
-              <a href={item.linkedin} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-lg glass text-blue-400 hover:text-blue-300 border border-blue-400/20 transition-all">
+              <a
+                href={item.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-lg glass text-blue-400 hover:text-blue-300 border border-blue-400/20 transition-all"
+              >
                 <Globe size={12} />
               </a>
             )}
             {item.github && (
-              <a href={item.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-lg glass text-gray-400 hover:text-white border border-white/10 transition-all">
+              <a
+                href={item.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-lg glass text-gray-400 hover:text-white border border-white/10 transition-all"
+              >
                 <Code2 size={12} />
               </a>
             )}
             {item.cv && (
-              <a href={item.cv} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-lg glass text-purple-400 hover:text-purple-300 border border-purple-400/20 transition-all">
+              <a
+                href={item.cv}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-lg glass text-purple-400 hover:text-purple-300 border border-purple-400/20 transition-all"
+              >
                 <FileText size={12} />
               </a>
             )}
             {item.email && (
-              <a href={`mailto:${item.email}`} onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-lg glass text-green-400 hover:text-green-300 border border-green-400/20 transition-all">
+              <a
+                href={`mailto:${item.email}`}
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-lg glass text-green-400 hover:text-green-300 border border-green-400/20 transition-all"
+              >
                 <Mail size={12} />
               </a>
             )}
@@ -294,12 +334,14 @@ export function TeamCardStack({
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   // تعديل الأحجام للجوال
-  const actualCardWidth = isMobile ? Math.min(340, window.innerWidth - 32) : cardWidth;
+  const actualCardWidth = isMobile
+    ? Math.min(340, window.innerWidth - 32)
+    : cardWidth;
   const actualCardHeight = isMobile ? 380 : cardHeight;
 
   React.useEffect(() => {
@@ -338,17 +380,33 @@ export function TeamCardStack({
     if (!autoAdvance || reduceMotion || !len) return;
     if (pauseOnHover && hovering) return;
 
-    const id = window.setInterval(() => {
-      if (loop || active < len - 1) next();
-    }, Math.max(800, intervalMs));
+    const id = window.setInterval(
+      () => {
+        if (loop || active < len - 1) next();
+      },
+      Math.max(800, intervalMs),
+    );
 
     return () => window.clearInterval(id);
-  }, [autoAdvance, intervalMs, hovering, pauseOnHover, reduceMotion, len, loop, active, next]);
+  }, [
+    autoAdvance,
+    intervalMs,
+    hovering,
+    pauseOnHover,
+    reduceMotion,
+    len,
+    loop,
+    active,
+    next,
+  ]);
 
   if (!len) return null;
 
   return (
-    <section className="relative w-full bg-black py-16 md:py-24 overflow-hidden" dir="rtl">
+    <section
+      className="relative w-full bg-black py-16 md:py-24 overflow-hidden"
+      dir="rtl"
+    >
       {/* Wave Background */}
       <WaveBackground />
 
@@ -374,7 +432,10 @@ export function TeamCardStack({
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 tracking-tight">
             نخبة
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400"> الخبراء</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400">
+              {" "}
+              الخبراء
+            </span>
           </h2>
           <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
             فريق يجمع بين الخبرة المالية العميقة والتميز التقني
@@ -394,8 +455,14 @@ export function TeamCardStack({
             onKeyDown={onKeyDown}
           >
             {/* Background effects */}
-            <div className="pointer-events-none absolute inset-x-0 top-6 mx-auto h-40 w-[70%] rounded-full bg-purple-500/5 blur-3xl" aria-hidden="true" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-36 w-[76%] rounded-full bg-purple-500/5 blur-3xl" aria-hidden="true" />
+            <div
+              className="pointer-events-none absolute inset-x-0 top-6 mx-auto h-40 w-[70%] rounded-full bg-purple-500/5 blur-3xl"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-36 w-[76%] rounded-full bg-purple-500/5 blur-3xl"
+              aria-hidden="true"
+            />
 
             <div
               className="absolute inset-0 flex items-end justify-center"
@@ -423,11 +490,20 @@ export function TeamCardStack({
                         drag: "x" as const,
                         dragConstraints: { left: 0, right: 0 },
                         dragElastic: 0.15,
-                        onDragEnd: (_e: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+                        onDragEnd: (
+                          _e: any,
+                          info: {
+                            offset: { x: number };
+                            velocity: { x: number };
+                          },
+                        ) => {
                           if (reduceMotion) return;
                           const travel = info.offset.x;
                           const v = info.velocity.x;
-                          const threshold = Math.min(120, actualCardWidth * 0.2);
+                          const threshold = Math.min(
+                            120,
+                            actualCardWidth * 0.2,
+                          );
                           if (travel > threshold || v > 500) prev();
                           else if (travel < -threshold || v < -500) next();
                         },
@@ -440,7 +516,9 @@ export function TeamCardStack({
                       className={cn(
                         "absolute bottom-0 rounded-2xl overflow-hidden shadow-2xl border border-white/5",
                         "will-change-transform select-none",
-                        isActive ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
+                        isActive
+                          ? "cursor-grab active:cursor-grabbing"
+                          : "cursor-pointer",
                       )}
                       style={{
                         width: actualCardWidth,
@@ -448,15 +526,40 @@ export function TeamCardStack({
                         zIndex,
                         transformStyle: "preserve-3d",
                       }}
-                      initial={reduceMotion ? false : { opacity: 0, y: y + 30, x, rotateZ, rotateX, scale }}
-                      animate={{ opacity: 1, x, y: y + lift, rotateZ, rotateX, scale }}
-                      transition={{ type: "spring", stiffness: springStiffness, damping: springDamping }}
+                      initial={
+                        reduceMotion
+                          ? false
+                          : {
+                              opacity: 0,
+                              y: y + 30,
+                              x,
+                              rotateZ,
+                              rotateX,
+                              scale,
+                            }
+                      }
+                      animate={{
+                        opacity: 1,
+                        x,
+                        y: y + lift,
+                        rotateZ,
+                        rotateX,
+                        scale,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: springStiffness,
+                        damping: springDamping,
+                      }}
                       onClick={() => setActive(i)}
                       {...dragProps}
                     >
                       <div
                         className="h-full w-full"
-                        style={{ transform: `translateZ(${z}px)`, transformStyle: "preserve-3d" }}
+                        style={{
+                          transform: `translateZ(${z}px)`,
+                          transformStyle: "preserve-3d",
+                        }}
                       >
                         <MemberFanCard item={item} active={isActive} />
                       </div>
@@ -488,7 +591,7 @@ export function TeamCardStack({
                       "h-2 rounded-full transition-all duration-300",
                       idx === active
                         ? "w-8 bg-purple-500 shadow-lg shadow-purple-500/30"
-                        : "w-2 bg-white/20 hover:bg-white/40"
+                        : "w-2 bg-white/20 hover:bg-white/40",
                     )}
                     aria-label={`${it.nameAr}`}
                   />
@@ -518,7 +621,7 @@ export function TeamSection() {
       nameAr: "أحمد الرشيد",
       roleAr: "المدير التنفيذي والمؤسس",
       bio: "خبرة تزيد عن ١٥ عاماً في الأسواق المالية والاستثمارات الرقمية. أسس OnRequest لتكون رائدة في مجال الاستثمارات الرقمية الذكية.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&h=500&fit=crop",
+      image: "/img/team/hadi.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
       email: "ahmed@onrequest.com",
@@ -532,7 +635,7 @@ export function TeamSection() {
       nameAr: "سارة القحطاني",
       roleAr: "المدير التقني",
       bio: "مهندسة برمجيات بخبرة ١٢ عاماً في تطوير المنصات المالية. متخصصة في تقنيات البلوكتشين والأمن السيبراني.",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&h=500&fit=crop",
+      image: "img/services/img1.png",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
       email: "sara@onrequest.com",
@@ -546,7 +649,7 @@ export function TeamSection() {
       nameAr: "محمد العتيبي",
       roleAr: "رئيس الذكاء الاصطناعي",
       bio: "دكتوراه في تعلم الآلة من جامعة ستانفورد. طور نماذج ذكاء اصطناعي للتنبؤ بالأسواق المالية بدقة ٩٤٪.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=500&fit=crop",
+      image: "/img/team/abdullahkorani.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
       cv: "https://example.com/cv",
@@ -561,7 +664,7 @@ export function TeamSection() {
       nameAr: "نورة الشمري",
       roleAr: "رئيسة تجربة المستخدم",
       bio: "مصممة رائدة في تجربة المستخدم للتطبيقات المالية. صممت واجهات حازت على جوائز عالمية في التصميم.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&h=500&fit=crop",
+      image: "/img/team/yusuf.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
       email: "nora@onrequest.com",
@@ -575,7 +678,7 @@ export function TeamSection() {
       nameAr: "خالد المنصور",
       roleAr: "استراتيجي استثماري",
       bio: "محلل مالي معتمد (CFA) بخبرة ١٨ عاماً. يدير محافظ استثمارية تتجاوز قيمتها ٥٠٠ مليون دولار.",
-      image: "img/services/img1.png",
+      image: "/img/team/mohamedkhalel.webp",
       linkedin: "https://linkedin.com",
       email: "khalid@onrequest.com",
       location: "نيويورك، الولايات المتحدة",
@@ -588,7 +691,8 @@ export function TeamSection() {
       nameAr: "ليلى الحربي",
       roleAr: "مديرة الأمن السيبراني",
       bio: "خبيرة أمن معلومات مع ١٤ عاماً من الخبرة. حاصلة على CISSP و CEH. أشرفت على تأمين ١٠٠+ منصة مالية.",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&h=500&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&h=500&fit=crop",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
       cv: "https://example.com/cv",
