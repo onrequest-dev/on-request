@@ -473,33 +473,55 @@ const OnRequestHero = () => {
               ))}
             </motion.p>
 
-            {/* CTA Button with enhanced animation */}
-            <motion.button
-              custom={2}
-              variants={fadeUpVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)",
-              }}
-              whileTap={{ scale: 0.95 }}
-              className="hover:cursor-pointer group relative w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold text-lg overflow-hidden"
-              style={{
-                clipPath:
-                  "polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%)",
-              }}
-            >
-              <motion.span
-                initial={{ x: 0 }}
-                whileHover={{ x: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                ابدأ مشروعك 
-              </motion.span>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-            </motion.button>
+{/* CTA Button with enhanced animation */}
+<motion.button
+  custom={2}
+  variants={fadeUpVariants}
+  initial="hidden"
+  animate="visible"
+  whileHover={{
+    scale: 1.05,
+    boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)",
+  }}
+  whileTap={{ scale: 0.95 }}
+  className="hover:cursor-pointer group relative w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold text-lg overflow-visible"
+  style={{
+    clipPath:
+      "polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%)",
+  }}
+>
+  {/* Decorative purple plus signs on outer corners */}
+  <div className="absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#6800ca" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  </div>
+  <div className="absolute -top-2 -left-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#6800ca" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  </div>
+  <div className="absolute -bottom-2 -right-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#6800ca" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  </div>
+  <div className="absolute -bottom-2 -left-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#6800ca" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  </div>
+
+  <motion.span
+    initial={{ x: 0 }}
+    whileHover={{ x: 5 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    ابدأ مشروعك 
+  </motion.span>
+  <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
+  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+</motion.button>
           </div>
 
           {/* Right Side - 3D Character with minimal decoration */}

@@ -12,7 +12,8 @@ import {
   Tag,
   ArrowLeft,
   ZoomIn,
-  Maximize2
+  Maximize2,
+  ExternalLink
 } from "lucide-react";
 import TrustedBy from "./trusted-by";
 
@@ -31,6 +32,7 @@ interface Project {
   tags: string[];
   size: "large" | "medium" | "small" | "wide" | "tall";
   gradient: string;
+  link?: string;
 }
 
 const PROJECTS: Project[] = [
@@ -74,6 +76,7 @@ const PROJECTS: Project[] = [
     tags: ["desktop", "mobile", "web"],
     size: "large",
     gradient: "from-orange-600 via-orange-500 to-yellow-600",
+    link: "https://goorder.example.com",
   },
   {
     id: "live-dent",
@@ -182,8 +185,8 @@ export function PortfolioBento() {
             logos={[
               {
                 src: "img/partners/1.webp",
-                alt: "nebla store",
-                name: "nebla store",
+                alt: "nabla store",
+                name: "nabla store",
               },
               {
                 src: "img/partners/2.webp",
@@ -456,73 +459,98 @@ export function PortfolioBento() {
 
               {/* Project Details Panel */}
               <div
-                className={cn("p-6 md:p-8 lg:p-10", isFullscreen && "hidden")}
+                className={cn(
+                  "p-6 md:p-8 lg:p-10 overflow-hidden", // ✨ أضف overflow-hidden
+                  isFullscreen && "hidden"
+                )}
               >
                 <div className="grid md:grid-cols-3 gap-8">
-                  {/* Main Info */}
-                  <div className="md:col-span-2">
+                  {/* Main Info - مع min-w-0 للسماح بلف النص */}
+                  <div className="md:col-span-2 min-w-0"> {/* ✨ أضف min-w-0 */}
                     <div className="flex flex-wrap items-center gap-3 mb-4">
-                      <span className="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium border border-purple-500/30">
+                      <span className="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium border border-purple-500/30 whitespace-nowrap">
                         {selectedProject.category}
                       </span>
-                      <span className="flex items-center gap-2 text-gray-400 text-sm">
-                        <Calendar className="h-4 w-4" />
+                      <span className="flex items-center gap-2 text-gray-400 text-sm whitespace-nowrap">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
                         {selectedProject.date}
                       </span>
                     </div>
 
-                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 break-words">
                       {selectedProject.title}
                     </h3>
 
-                    <p className="text-gray-300 text-base md:text-lg leading-relaxed">
+                    {/* ✨ النص مع معالجة الكلمات الطويلة */}
+                    <p className="text-gray-300 text-base md:text-lg leading-relaxed break-words overflow-wrap-anywhere max-w-full">
                       {selectedProject.description}
                     </p>
                   </div>
 
-                  {/* Tags & Info */}
-                  <div className="space-y-6">
+                  {/* Tags & Info - مع min-w-0 */}
+                  <div className="space-y-6 min-w-0"> {/* ✨ أضف min-w-0 */}
                     <div>
-                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider"></h4>
+                      <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">
+                        التقنيات
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedProject.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-800 text-gray-300 text-sm border border-gray-700 hover:border-purple-500/50 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-800 text-gray-300 text-sm border border-gray-700 hover:border-purple-500/50 transition-colors whitespace-nowrap"
                           >
-                            <Tag className="h-3 w-3 text-purple-400" />
+                            <Tag className="h-3 w-3 text-purple-400 flex-shrink-0" />
                             {tag}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    {/* Mobile Thumbnails */}
+                    {/* Mobile Thumbnails - ✨ مع حاوية آمنة */}
                     <div className="md:hidden">
                       <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wider">
                         الصور
                       </h4>
-                      <div className="flex gap-2 overflow-x-auto pb-2">
-                        {selectedProject.images.map((image, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(idx)}
-                            className={cn(
-                              "flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300",
-                              idx === currentImageIndex
-                                ? "border-purple-500 shadow-lg shadow-purple-500/25"
-                                : "border-transparent opacity-50 hover:opacity-75",
-                            )}
-                          >
-                            <img
-                              src={image.src}
-                              alt={image.alt}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
+                      {/* ✨ حاوية التمرير مع padding سالب للسماح بالتمرير الكامل */}
+                      <div className="overflow-x-auto pb-2 -mx-2 px-2 scrollbar-thin">
+                        <div className="flex gap-2 min-w-min"> {/* ✨ غلاف إضافي */}
+                          {selectedProject.images.map((image, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setCurrentImageIndex(idx)}
+                              className={cn(
+                                "flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300",
+                                idx === currentImageIndex
+                                  ? "border-purple-500 shadow-lg shadow-purple-500/25"
+                                  : "border-transparent opacity-50 hover:opacity-75",
+                              )}
+                            >
+                              <img
+                                src={image.src}
+                                alt={image.alt}
+                                className="w-full h-full object-cover"
+                                draggable={false} // ✨ منع السحب
+                              />
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
+
+                    {/* ✨ زر زيارة المشروع */}
+                    {selectedProject.link && (
+                      <div>
+                        <a
+                          href={selectedProject.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-purple-600/20 border border-purple-500/40 text-white font-medium hover:bg-purple-600/30 transition-all duration-300 group w-full md:w-auto justify-center"
+                        >
+                          <span>زيارة المشروع</span>
+                          <ExternalLink className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -331,6 +331,10 @@ export function TeamCardStack({
   const [hovering, setHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  const [isVisible, setIsVisible] = useState(false);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -374,39 +378,71 @@ export function TeamCardStack({
     if (e.key === "ArrowLeft") prev();
     if (e.key === "ArrowRight") next();
   };
+  // مراقبة ظهور المكون في الصفحة
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+        setAutoPlayEnabled(false);
+      }
+    },
+    { threshold: 0.15 } // يبدأ عندما 15% من المكون ظاهر
+  );
 
-  // Autoplay
-  React.useEffect(() => {
-    if (!autoAdvance || reduceMotion || !len) return;
-    if (pauseOnHover && hovering) return;
+  if (sectionRef.current) {
+    observer.observe(sectionRef.current);
+  }
 
-    const id = window.setInterval(
-      () => {
-        if (loop || active < len - 1) next();
-      },
-      Math.max(800, intervalMs),
-    );
+  return () => observer.disconnect();
+}, []);
 
-    return () => window.clearInterval(id);
-  }, [
-    autoAdvance,
-    intervalMs,
-    hovering,
-    pauseOnHover,
-    reduceMotion,
-    len,
-    loop,
-    active,
-    next,
-  ]);
+// بدء التقليب التلقائي بعد 5 ثوانٍ من الظهور
+useEffect(() => {
+  if (!isVisible) return;
+
+  const timer = setTimeout(() => {
+    setAutoPlayEnabled(true);
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, [isVisible]);
+// Autoplay
+React.useEffect(() => {
+  if (!autoAdvance || reduceMotion || !len || !autoPlayEnabled) return; // أضفنا !autoPlayEnabled
+  if (pauseOnHover && hovering) return;
+
+  const id = window.setInterval(
+    () => {
+      if (loop || active < len - 1) next();
+    },
+    Math.max(800, intervalMs),
+  );
+
+  return () => window.clearInterval(id);
+}, [
+  autoAdvance,
+  intervalMs,
+  hovering,
+  pauseOnHover,
+  reduceMotion,
+  len,
+  loop,
+  active,
+  next,
+  autoPlayEnabled, // أضفنا هذا
+]);
 
   if (!len) return null;
 
   return (
-    <section
-      className="relative w-full bg-black py-16 md:py-24 overflow-hidden"
-      dir="rtl"
-    >
+  <section
+    ref={sectionRef} // ✨ أضفنا هذا
+    className="relative w-full bg-black py-16 md:py-24 overflow-hidden"
+    dir="rtl"
+  >
       {/* Wave Background */}
       <WaveBackground />
 

@@ -1,7 +1,7 @@
 // components/ui/services-carousel.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../../lib/utils";
 import {
@@ -115,6 +115,9 @@ const wrap = (min: number, max: number, v: number) => {
 export function ServicesCarousel() {
   const [step, setStep] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isVisible, setIsVisible] = useState(false); // جديدة
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(false); // جديدة
+  const sectionRef = useRef<HTMLElement>(null); // جديدة
 
   const currentIndex =
     ((step % SERVICES.length) + SERVICES.length) % SERVICES.length;
@@ -128,11 +131,44 @@ export function ServicesCarousel() {
     if (diff > 0) setStep((s) => s + diff);
   };
 
-  useEffect(() => {
-    if (isPaused) return;
-    const interval = setInterval(nextStep, AUTO_PLAY_INTERVAL);
-    return () => clearInterval(interval);
-  }, [nextStep, isPaused]);
+useEffect(() => {
+  if (isPaused || !autoPlayEnabled) return; // أضفنا !autoPlayEnabled
+  const interval = setInterval(nextStep, AUTO_PLAY_INTERVAL);
+  return () => clearInterval(interval);
+}, [nextStep, isPaused, autoPlayEnabled]); // أضفنا autoPlayEnabled
+
+  // مراقبة ظهور المكون في الصفحة
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+        setAutoPlayEnabled(false);
+      }
+    },
+    { threshold: 0.2 } // يبدأ عندما 20% من المكون ظاهر
+  );
+
+  if (sectionRef.current) {
+    observer.observe(sectionRef.current);
+  }
+
+  return () => observer.disconnect();
+}, []);
+
+
+// بدء التقليب التلقائي بعد 5 ثوانٍ من الظهور
+useEffect(() => {
+  if (!isVisible) return;
+
+  const timer = setTimeout(() => {
+    setAutoPlayEnabled(true);
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, [isVisible]);
 
   const getCardStatus = (index: number) => {
     const diff = index - currentIndex;
@@ -149,7 +185,7 @@ export function ServicesCarousel() {
   };
 
   return (
-    <section className="w-full bg-black py-16 md:py-24" dir="rtl">
+    <section ref={sectionRef} className="w-full bg-black py-16 md:py-24" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
