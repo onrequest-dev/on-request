@@ -76,15 +76,14 @@ const PROJECTS: Project[] = [
     tags: ["desktop", "mobile", "web"],
     size: "large",
     gradient: "from-orange-600 via-orange-500 to-yellow-600",
-    link: "https://goorder.example.com",
+    link: "https://go-order-six.vercel.app/",
   },
   {
     id: "live-dent",
     title: "live dent | نظام رقمي لادارة عيادات الاسنان",
     category: "desktop | web | mobile",
     description:
-    "لوحة تحكم واحدة تختصر كل التعقيد: سجل طبي إلكتروني، جدولة ذكية للمواعيد، وتتبع مالي دقيق. لا أوراق، لا حجوزات مزدوجة، لا مدفوعات ضائعة."
-    ,
+      "لوحة تحكم واحدة تختصر كل التعقيد: سجل طبي إلكتروني، جدولة ذكية للمواعيد، وتتبع مالي دقيق. لا أوراق، لا حجوزات مزدوجة، لا مدفوعات ضائعة.",
     images: [
       {
         src: "/img/live-dent/4.webp",
@@ -119,6 +118,7 @@ const PROJECTS: Project[] = [
     tags: ["desktop", "mobile", "web"],
     size: "large",
     gradient: "from-blue-600 via-blue-500 to-blue-400",
+    link: "https://live-dent.vercel.app/landing-page",
   },
 ];
 

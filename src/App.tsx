@@ -5,7 +5,7 @@ import ServicesCarousel from './components/services-carousel';
 import PortfolioBento from './components/portfolio-bento';
 import FeaturesOrbital from './components/features-orbital';
 import TeamSection from './components/team-section';
-import PartnersSection from './components/partners-section';
+// import PartnersSection from './components/partners-section';
 import OnRequestFooter from './components/onrequest-footer';
 const App: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const App: React.FC = () => {
       <PortfolioBento />
       <FeaturesOrbital />
       <TeamSection />
-      <PartnersSection />
+      {/* <PartnersSection /> */}
       <OnRequestFooter />
     </div>
   );

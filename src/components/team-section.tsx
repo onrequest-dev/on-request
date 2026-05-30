@@ -236,7 +236,7 @@ function MemberFanCard({
             </p>
           </div>
 
-          <p className="text-white/50 text-[11px] leading-relaxed line-clamp-2 mb-3">
+          <p className="text-white/50 text-[11px] leading-relaxed line-clamp-6 mb-3">
             {item.bio}
           </p>
 
@@ -654,9 +654,9 @@ export function TeamSection() {
   const teamItems: TeamCardItem[] = [
     {
       id: 1,
-      nameAr: "أحمد الرشيد",
-      roleAr: "المدير التنفيذي والمؤسس",
-      bio: "خبرة تزيد عن ١٥ عاماً في الأسواق المالية والاستثمارات الرقمية. أسس OnRequest لتكون رائدة في مجال الاستثمارات الرقمية الذكية.",
+      nameAr: "هادي قدور",
+      roleAr: "Co-Founder & Head of Engineering",
+      bio: "3 سنوات في بناء الحلول التقنية المعقدة. يقود تطوير الباك إند وهندسة الحلول المعقدة ،  صارم في الجودة، لا يرضى بالنتائج الأولية حتى تصل إلى أقصى كفاءة.",
       image: "/img/team/hadi.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
@@ -664,13 +664,13 @@ export function TeamSection() {
       location: "الرياض، السعودية",
       experience: "١٥+ سنة",
       specialties: ["الاستثمار", "التخطيط المالي", "الذكاء الاصطناعي"],
-      category: "القيادة",
+      category: "Co-Founder",
     },
     {
       id: 2,
-      nameAr: "سارة القحطاني",
-      roleAr: "المدير التقني",
-      bio: "مهندسة برمجيات بخبرة ١٢ عاماً في تطوير المنصات المالية. متخصصة في تقنيات البلوكتشين والأمن السيبراني.",
+      nameAr: "عبد القادر زكرة",
+      roleAr: "Co-Founder & Head of Product",
+      bio: "يركز على بناء منتجات تحل مشاكل حقيقية. يشرف على إخراج المنتج النهائي وتجربة المستخدم، ويربط بين الجدوى التقنية واحتياج السوق. يصفه فريقه بالمبدع والعملي معاً.",
       image: "img/services/img1.png",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
@@ -678,13 +678,13 @@ export function TeamSection() {
       location: "دبي، الإمارات",
       experience: "١٢+ سنة",
       specialties: ["بلوكتشين", "الأمن السيبراني", "هندسة البرمجيات"],
-      category: "التقنية",
+      category: "Co-Founder",
     },
     {
       id: 3,
-      nameAr: "محمد العتيبي",
-      roleAr: "رئيس الذكاء الاصطناعي",
-      bio: "دكتوراه في تعلم الآلة من جامعة ستانفورد. طور نماذج ذكاء اصطناعي للتنبؤ بالأسواق المالية بدقة ٩٤٪.",
+      nameAr: "عبد الله كوراني",
+      roleAr: "مسؤول التسويق",
+      bio: "يدرس السوق والمنافسين بعمق. يزود الفريق برؤى استراتيجية عن احتياجات القطاعات المستهدفة، ويساهم في وضع المنتج في موقع تنافسي صحيح منذ البداية.",
       image: "/img/team/abdullahkorani.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
@@ -693,13 +693,13 @@ export function TeamSection() {
       location: "لندن، المملكة المتحدة",
       experience: "١٠+ سنة",
       specialties: ["تعلم الآلة", "تحليل البيانات", "الخوارزميات"],
-      category: "التقنية",
+      category: "Markting",
     },
     {
       id: 4,
-      nameAr: "نورة الشمري",
-      roleAr: "رئيسة تجربة المستخدم",
-      bio: "مصممة رائدة في تجربة المستخدم للتطبيقات المالية. صممت واجهات حازت على جوائز عالمية في التصميم.",
+      nameAr: "يوسف حيش",
+      roleAr: "مسؤول المبيعات",
+      bio: "مسؤول عن بناء العلاقات مع الشركات وإغلاق الصفقات. يفهم احتياجات العملاء ويصمم العروض المناسبة. يمثل الصوت الأول الذي يسمعه شركاؤنا ويمهد الطريق لتعاون طويل الأمد.",
       image: "/img/team/yusuf.webp",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
@@ -707,20 +707,20 @@ export function TeamSection() {
       location: "عمّان، الأردن",
       experience: "٨+ سنة",
       specialties: ["تصميم الواجهات", "تجربة المستخدم", "التطبيقات المالية"],
-      category: "التصميم",
+      category: "Business Development",
     },
     {
       id: 5,
-      nameAr: "خالد المنصور",
-      roleAr: "استراتيجي استثماري",
-      bio: "محلل مالي معتمد (CFA) بخبرة ١٨ عاماً. يدير محافظ استثمارية تتجاوز قيمتها ٥٠٠ مليون دولار.",
+      nameAr: "محمد خليل رمضان",
+      roleAr: "مدير المشاريع والتنسيق",
+      bio: "حلقة الوصل بين العميل وفريق التطوير. يتأكد من وضوح المتطلبات منذ البداية، ويلتزم بالاتفاقات والمواعيد. يضمن سير العمل بسلاسة ويحافظ على توافق المخرجات مع توقعات العميل.",
       image: "/img/team/mohamedkhalel.webp",
       linkedin: "https://linkedin.com",
       email: "khalid@onrequest.com",
       location: "نيويورك، الولايات المتحدة",
       experience: "١٨+ سنة",
       specialties: ["تحليل مالي", "إدارة المخاطر", "تنويع المحافظ"],
-      category: "الاستثمار",
+      category: "Client Relations",
     },
     {
       id: 6,
