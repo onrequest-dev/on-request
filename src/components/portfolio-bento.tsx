@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { 
   X, 
@@ -351,6 +351,7 @@ export function PortfolioBento() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className={cn(
                 "relative bg-gray-900/80 backdrop-blur-2xl border border-gray-800/50 shadow-2xl overflow-hidden",
+                "overflow-hidden",
                 // Responsive sizing
                 "w-full h-full md:h-auto md:max-h-[90vh] md:rounded-3xl md:w-[95%] lg:w-[90%] xl:w-[85%] max-w-7xl",
                 isFullscreen &&
@@ -466,7 +467,7 @@ export function PortfolioBento() {
               >
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Main Info - مع min-w-0 للسماح بلف النص */}
-                  <div className="md:col-span-2 min-w-0"> {/* ✨ أضف min-w-0 */}
+                  <div className="md:col-span-2 min-w-0 overflow-hidden"> {/* ✨ أضف min-w-0 */}
                     <div className="flex flex-wrap items-center gap-3 mb-4">
                       <span className="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium border border-purple-500/30 whitespace-nowrap">
                         {selectedProject.category}
