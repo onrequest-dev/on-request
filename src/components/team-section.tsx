@@ -653,7 +653,7 @@ React.useEffect(() => {
 export function TeamSection() {
   const teamItems: TeamCardItem[] = [
     {
-      id: 1,
+      id: 2,
       nameAr: "هادي قدور",
       roleAr: "Co-Founder & Head of Engineering",
       bio: "3 سنوات في بناء الحلول التقنية المعقدة. يقود تطوير الباك إند وهندسة الحلول المعقدة ،  صارم في الجودة، لا يرضى بالنتائج الأولية حتى تصل إلى أقصى كفاءة.",
@@ -667,7 +667,7 @@ export function TeamSection() {
       category: "Co-Founder",
     },
     {
-      id: 2,
+      id: 1,
       nameAr: "عبد القادر زكرة",
       roleAr: "Co-Founder & Head of Product",
       bio: "يركز على بناء منتجات تحل مشاكل حقيقية. يشرف على إخراج المنتج النهائي وتجربة المستخدم، ويربط بين الجدوى التقنية واحتياج السوق. يصفه فريقه بالمبدع والعملي معاً.",
