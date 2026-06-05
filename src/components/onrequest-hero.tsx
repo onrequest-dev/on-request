@@ -8,16 +8,6 @@ import { ArrowRight, Zap, Menu, X } from "lucide-react";
 const cn = (...classes: (string | undefined | false)[]) =>
   classes.filter(Boolean).join(" ");
 
-// Dynamic navigation links
-const navLinks = [
-  { name: "الرئيسية", href: "#home" },
-  { name: "الخدمات", href: "#services" },
-  { name: "الأعمال", href: "#portfolio" },
-  { name: "المميزات", href: "#features" },
-  { name: "الفريق", href: "#team" },
-  { name: "التواصل", href: "#contact" },
-];
-
 const OnRequestHero = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -303,96 +293,6 @@ const OnRequestHero = () => {
       {/* Canvas Background */}
       <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
 
-      {/* Navigation Bar */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="relative z-20 w-full px-6 sm:px-8 lg:px-12 py-5"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="flex items-center"
-          >
-            <img
-              src="/img/onrequs.png"
-              alt="OnRequest Logo"
-              className="h-10 w-auto object-contain"
-            />
-          </motion.div>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link, idx) => (
-              <motion.a
-                key={link.name}
-                href={link.href}
-                custom={idx}
-                variants={fadeUpVariants}
-                initial="hidden"
-                animate="visible"
-                className="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 relative group"
-                whileHover={{ y: -2 }}
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-500 group-hover:w-full transition-all duration-300" />
-              </motion.a>
-            ))}
-          </div>
-
-          {/* Connect Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hover:cursor-pointer hidden md:flex items-center gap-2 px-5 py-2.5 rounded-lg bg-purple-600/20 border border-purple-500/40 text-white text-sm font-medium hover:bg-purple-600/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
-          >
-            تواصل معنا
-            <ArrowRight className="h-4 w-4" />
-          </motion.button>
-
-          {/* Mobile menu button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-white"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </motion.button>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute top-20 left-0 right-0 mx-4 bg-black/90 backdrop-blur-xl rounded-xl border border-purple-500/20 p-4 md:hidden z-30 shadow-2xl"
-          >
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="block py-3 text-gray-300 hover:text-white text-center transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.name}
-              </a>
-            ))}
-            <button className="w-full mt-2 py-3 rounded-lg bg-purple-600/20 border border-purple-500/40 text-white text-sm font-medium hover:bg-purple-600/30 transition-all">
-              تواصل معنا
-            </button>
-          </motion.div>
-        )}
-      </motion.nav>
-
       {/* Main Content Container - Split Layout */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 min-h-[calc(100vh-80px)] flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 w-full py-12 lg:py-0">
@@ -477,99 +377,58 @@ const OnRequestHero = () => {
               ))}
             </motion.p>
 
-            {/* CTA Button with enhanced animation */}
-            <motion.button
-              custom={2}
-              variants={fadeUpVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)",
-              }}
-              whileTap={{ scale: 0.95 }}
-              className="hover:cursor-pointer group relative w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold text-lg overflow-visible"
-              style={{
-                clipPath:
-                  "polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%)",
-              }}
-            >
-              {/* Decorative purple plus signs on outer corners */}
-              <div className="absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 1V15M1 8H15"
-                    stroke="#B700FF"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              <div className="absolute -top-2 -left-2 w-4 h-4 flex items-center justify-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 1V15M1 8H15"
-                    stroke="#B700FF"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-4 h-4 flex items-center justify-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 1V15M1 8H15"
-                    stroke="#B700FF"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              <div className="absolute -bottom-2 -left-2 w-4 h-4 flex items-center justify-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M8 1V15M1 8H15"
-                    stroke="#B700FF "
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
+{/* CTA Button - رابط تلغرام */}
+<motion.a
+  href="https://t.me/OnRequest_dev"
+  target="_blank"
+  rel="noopener noreferrer"
+  custom={2}
+  variants={fadeUpVariants}
+  initial="hidden"
+  animate="visible"
+  whileHover={{
+    scale: 1.05,
+    boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)",
+  }}
+  whileTap={{ scale: 0.95 }}
+  className="hover:cursor-pointer group relative w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold text-lg overflow-visible"
+  style={{
+    clipPath:
+      "polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%)",
+  }}
+>
+  {/* Decorative purple plus signs on outer corners */}
+  <div className="absolute -top-2 -right-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#B700FF" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  </div>
+  <div className="absolute -top-2 -left-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#B700FF" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  </div>
+  <div className="absolute -bottom-2 -right-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#B700FF" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  </div>
+  <div className="absolute -bottom-2 -left-2 w-4 h-4 flex items-center justify-center">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1V15M1 8H15" stroke="#B700FF" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  </div>
 
-              <motion.span
-                initial={{ x: 0 }}
-                whileHover={{ x: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                ابدأ مشروعك
-              </motion.span>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-            </motion.button>
+  <motion.span
+    initial={{ x: 0 }}
+    whileHover={{ x: 5 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    ابدأ مشروعك
+  </motion.span>
+  <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
+  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+</motion.a>
           </div>
 
           {/* Right Side - 3D Character with minimal decoration */}

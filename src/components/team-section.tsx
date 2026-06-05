@@ -17,7 +17,7 @@ import {
   ChevronRight,
   ExternalLink,
 } from "lucide-react";
-
+import { JoinRequestModal } from "./join-request-modal";
 function cn(...classes: Array<string | undefined | null | false>) {
   return classes.filter(Boolean).join(" ");
 }
@@ -334,7 +334,7 @@ export function TeamCardStack({
   const [isVisible, setIsVisible] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-
+  const [showJoinModal, setShowJoinModal] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -643,8 +643,22 @@ React.useEffect(() => {
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
+          <div className="flex justify-center mt-8">
+            <button 
+              onClick={() => setShowJoinModal(true)}
+              className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition-colors text-sm group"
+            >
+              هل تريد الانضمام لـ OnRequest ؟
+            </button>
+        </div>
         </div>
       </div>
+              {/* Join Modal */}
+    <AnimatePresence>
+      {showJoinModal && (
+        <JoinRequestModal onClose={() => setShowJoinModal(false)} />
+      )}
+    </AnimatePresence>
     </section>
   );
 }
