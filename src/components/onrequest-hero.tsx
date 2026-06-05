@@ -11,9 +11,10 @@ const cn = (...classes: (string | undefined | false)[]) =>
 // Dynamic navigation links
 const navLinks = [
   { name: "الرئيسية", href: "#home" },
-  { name: "المنتجات", href: "#products" },
-  { name: "الحلول", href: "#solutions" },
+  { name: "الخدمات", href: "#services" },
+  { name: "الأعمال", href: "#portfolio" },
   { name: "المميزات", href: "#features" },
+  { name: "الفريق", href: "#team" },
   { name: "التواصل", href: "#contact" },
 ];
 
