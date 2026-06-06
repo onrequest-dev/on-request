@@ -1,17 +1,15 @@
 // components/ui/services-carousel.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { motion, AnimatePresence, Transition } from "motion/react";
 import { cn } from "../../lib/utils";
 import {
   Smartphone,
   Monitor,
   Globe,
   Cpu,
-  CircuitBoard,
   Database,
-  Cloud,
   Shield,
   BarChart3,
   Cog,
@@ -103,8 +101,9 @@ const SERVICES = [
   },
 ];
 
-const AUTO_PLAY_INTERVAL = 4000; // 4 ثواني للتقليب التلقائي
-const RESUME_DELAY = 3000; // 3 ثواني بعد التفاعل اليدوي
+const AUTO_PLAY_INTERVAL = 4000;
+const RESUME_DELAY = 3000;
+const VISIBLE_CHIP_RADIUS = 2; // عرض ±2 chips حول المؤشر الحالي (إجمالي 5)
 
 const wrap = (min: number, max: number, v: number) => {
   const rangeSize = max - min;
@@ -122,37 +121,35 @@ export function ServicesCarousel() {
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialStartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentIndex =
-    ((step % SERVICES.length) + SERVICES.length) % SERVICES.length;
+  const currentIndex = ((step % SERVICES.length) + SERVICES.length) % SERVICES.length;
 
   const nextStep = useCallback(() => {
     setStep((prev) => prev + 1);
   }, []);
 
-  const handleChipClick = useCallback((index: number) => {
-    const diff = (index - currentIndex + SERVICES.length) % SERVICES.length;
-    if (diff > 0) {
-      setStep((s) => s + diff);
-    }
-    
-    // إيقاف المؤقت الحالي
-    if (autoPlayIntervalRef.current) {
-      clearInterval(autoPlayIntervalRef.current);
-      autoPlayIntervalRef.current = null;
-    }
-    
-    // إلغاء مؤقت الاستئناف السابق
-    if (resumeTimeoutRef.current) {
-      clearTimeout(resumeTimeoutRef.current);
-    }
-    
-    // إعادة التشغيل بعد 3 ثواني
-    resumeTimeoutRef.current = setTimeout(() => {
-      if (autoPlayEnabled && !isPaused) {
-        autoPlayIntervalRef.current = setInterval(nextStep, AUTO_PLAY_INTERVAL);
+  const handleChipClick = useCallback(
+    (index: number) => {
+      const diff = (index - currentIndex + SERVICES.length) % SERVICES.length;
+      if (diff > 0) {
+        setStep((s) => s + diff);
       }
-    }, RESUME_DELAY);
-  }, [currentIndex, autoPlayEnabled, isPaused, nextStep]);
+
+      if (autoPlayIntervalRef.current) {
+        clearInterval(autoPlayIntervalRef.current);
+        autoPlayIntervalRef.current = null;
+      }
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+      }
+
+      resumeTimeoutRef.current = setTimeout(() => {
+        if (autoPlayEnabled && !isPaused) {
+          autoPlayIntervalRef.current = setInterval(nextStep, AUTO_PLAY_INTERVAL);
+        }
+      }, RESUME_DELAY);
+    },
+    [currentIndex, autoPlayEnabled, isPaused, nextStep]
+  );
 
   // Detect mobile
   useEffect(() => {
@@ -164,7 +161,7 @@ export function ServicesCarousel() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // التحكم في المؤقت التلقائي
+  // Auto-play timer
   useEffect(() => {
     if (isPaused || !autoPlayEnabled) {
       if (autoPlayIntervalRef.current) {
@@ -173,14 +170,9 @@ export function ServicesCarousel() {
       }
       return;
     }
-    
-    // بدء المؤقت
     autoPlayIntervalRef.current = setInterval(nextStep, AUTO_PLAY_INTERVAL);
-    
     return () => {
-      if (autoPlayIntervalRef.current) {
-        clearInterval(autoPlayIntervalRef.current);
-      }
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
     };
   }, [isPaused, autoPlayEnabled, nextStep]);
 
@@ -193,48 +185,31 @@ export function ServicesCarousel() {
         } else {
           setIsVisible(false);
           setAutoPlayEnabled(false);
-          // تنظيف المؤقتات عند الخروج من الرؤية
-          if (autoPlayIntervalRef.current) {
-            clearInterval(autoPlayIntervalRef.current);
-            autoPlayIntervalRef.current = null;
-          }
-          if (resumeTimeoutRef.current) {
-            clearTimeout(resumeTimeoutRef.current);
-            resumeTimeoutRef.current = null;
-          }
+          if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
+          if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
         }
       },
       { threshold: 0.2 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  // بدء التشغيل التلقائي بعد 5 ثواني من الظهور
+  // Start auto-play after 5s of visibility
   useEffect(() => {
     if (!isVisible) {
-      if (initialStartTimeoutRef.current) {
-        clearTimeout(initialStartTimeoutRef.current);
-      }
+      if (initialStartTimeoutRef.current) clearTimeout(initialStartTimeoutRef.current);
       return;
     }
-    
     initialStartTimeoutRef.current = setTimeout(() => {
       setAutoPlayEnabled(true);
     }, 5000);
-    
     return () => {
-      if (initialStartTimeoutRef.current) {
-        clearTimeout(initialStartTimeoutRef.current);
-      }
+      if (initialStartTimeoutRef.current) clearTimeout(initialStartTimeoutRef.current);
     };
   }, [isVisible]);
 
-  // تنظيف جميع المؤقتات عند إلغاء المكون
+  // Cleanup all timers on unmount
   useEffect(() => {
     return () => {
       if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
@@ -255,44 +230,48 @@ export function ServicesCarousel() {
     return "hidden";
   };
 
-  // Mobile chip positioning with 3D perspective
-  const getMobileChipStyle = (index: number) => {
-    const diff = index - currentIndex;
-    const len = SERVICES.length;
-    let normalizedDiff = diff;
-    if (diff > len / 2) normalizedDiff -= len;
-    if (diff < -len / 2) normalizedDiff += len;
+  // Mobile chip style calculation (memoized per index)
+  const getMobileChipStyle = useCallback(
+    (index: number) => {
+      const diff = index - currentIndex;
+      const len = SERVICES.length;
+      let normalizedDiff = diff;
+      if (diff > len / 2) normalizedDiff -= len;
+      if (diff < -len / 2) normalizedDiff += len;
 
-    const absDist = Math.abs(normalizedDiff);
-    const direction = normalizedDiff > 0 ? 1 : -1;
+      const absDist = Math.abs(normalizedDiff);
+      const direction = normalizedDiff > 0 ? 1 : -1;
 
-    // Horizontal spread
-    const xOffset = normalizedDiff * 160;
-    
-    // Scale based on distance
-    const scale = Math.max(0.5, 1 - absDist * 0.2);
-    
-    // Opacity based on distance
-    const opacity = Math.max(0.1, 1 - absDist * 0.35);
-    
-    // Z-index (closer = higher)
-    const zIndex = 100 - absDist * 10;
-    
-    // Y offset for 3D depth effect
-    const yOffset = absDist * 20;
-    
-    // Rotation for 3D perspective
-    const rotateY = direction * absDist * 15;
+      const xOffset = normalizedDiff * 160;
+      const scale = Math.max(0.5, 1 - absDist * 0.2);
+      const opacity = Math.max(0.1, 1 - absDist * 0.35);
+      const zIndex = 100 - absDist * 10;
+      const yOffset = absDist * 20;
+      const rotateY = direction * absDist * 15;
 
-    return {
-      x: xOffset,
-      scale,
-      opacity,
-      zIndex,
-      y: yOffset,
-      rotateY,
-    };
-  };
+      return { x: xOffset, scale, opacity, zIndex, y: yOffset, rotateY };
+    },
+    [currentIndex]
+  );
+
+  // Determine which chips to render on mobile (only current ± radius)
+  const visibleChipIndices = useMemo(() => {
+    if (!isMobile) return SERVICES.map((_, i) => i);
+    const indices: number[] = [];
+    for (let i = -VISIBLE_CHIP_RADIUS; i <= VISIBLE_CHIP_RADIUS; i++) {
+      const idx = (currentIndex + i + SERVICES.length) % SERVICES.length;
+      indices.push(idx);
+    }
+    return indices;
+  }, [isMobile, currentIndex]);
+
+const chipTransition: Transition = isMobile
+  ? { type: "tween", duration: 0.35, ease: "easeOut" }
+  : { type: "spring", stiffness: 100, damping: 20, mass: 0.8 };
+
+const cardTransition: Transition = isMobile
+  ? { type: "tween", duration: 0.4, ease: "easeOut" }
+  : { type: "spring", stiffness: 260, damping: 25, mass: 0.8 };
 
   return (
     <section
@@ -301,7 +280,7 @@ export function ServicesCarousel() {
       dir="rtl"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Section Header (unchanged) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -317,7 +296,7 @@ export function ServicesCarousel() {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-3 md:mb-4">
             حلول رقمية
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-200">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r font-extrabold text-white mb-3 md:mb-4">
               {" "}
               متطورة
             </span>
@@ -330,42 +309,26 @@ export function ServicesCarousel() {
 
         {/* Carousel Container */}
         <div className="relative overflow-hidden rounded-2xl md:rounded-[2rem] lg:rounded-[3rem] flex flex-col lg:flex-row min-h-[500px] md:min-h-[550px] lg:min-h-[600px] lg:aspect-[16/9] border border-purple-500/20 bg-gray-900/50 backdrop-blur-sm">
-          
           {/* Left Side - Services List */}
           <div className="w-full lg:w-[40%] h-[160px] md:h-[320px] lg:h-full relative z-30 flex items-center justify-center lg:justify-start overflow-hidden px-4 md:px-8 lg:px-12 bg-gradient-to-br from-gray-900 via-purple-950/20 to-black">
-            
-            {/* Gradient Overlays */}
             <div className="absolute inset-x-0 top-0 h-16 md:h-20 lg:h-16 bg-gradient-to-b from-gray-900 via-gray-900/80 to-transparent z-40 pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 h-16 md:h-20 lg:h-16 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-40 pointer-events-none" />
 
-            {/* Services List - Desktop */}
+            {/* Desktop List */}
             <div className="hidden lg:flex relative w-full h-full items-center justify-start z-20">
               {SERVICES.map((service, index) => {
-                const isActive = index === currentIndex;
                 const distance = index - currentIndex;
                 const wrappedDistance = wrap(
                   -(SERVICES.length / 2),
                   SERVICES.length / 2,
-                  distance,
+                  distance
                 );
-
                 return (
                   <motion.div
                     key={service.id}
-                    style={{
-                      height: 65,
-                      width: "fit-content",
-                    }}
-                    animate={{
-                      y: wrappedDistance * 65,
-                      opacity: 1 - Math.abs(wrappedDistance) * 0.2,
-                    }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 90,
-                      damping: 22,
-                      mass: 1,
-                    }}
+                    style={{ height: 65, width: "fit-content", willChange: "transform" }}
+                    animate={{ y: wrappedDistance * 65, opacity: 1 - Math.abs(wrappedDistance) * 0.2 }}
+                    transition={chipTransition}
                     className="absolute flex items-center justify-start"
                   >
                     <button
@@ -373,36 +336,29 @@ export function ServicesCarousel() {
                       onMouseEnter={() => setIsPaused(true)}
                       onMouseLeave={() => setIsPaused(false)}
                       className={cn(
-                        "relative flex items-center gap-3 px-6 lg:px-6 py-3 rounded-full transition-all duration-700 text-right group border",
-                        isActive
+                        "relative flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-700 text-right group border",
+                        index === currentIndex
                           ? "bg-purple-500 text-white border-purple-400 shadow-lg shadow-purple-500/25 z-10"
-                          : "bg-transparent text-gray-400 border-gray-700 hover:border-purple-500/50 hover:text-gray-200",
+                          : "bg-transparent text-gray-400 border-gray-700 hover:border-purple-500/50 hover:text-gray-200"
                       )}
                     >
-                      <div
-                        className={cn(
-                          "flex items-center justify-center transition-colors duration-500",
-                          isActive ? "text-white" : "text-gray-500",
-                        )}
-                      >
+                      <div className={cn("flex items-center justify-center transition-colors duration-500", index === currentIndex ? "text-white" : "text-gray-500")}>
                         <service.icon size={18} strokeWidth={2} />
                       </div>
-                      <span className="font-medium text-sm whitespace-nowrap">
-                        {service.label}
-                      </span>
+                      <span className="font-medium text-sm whitespace-nowrap">{service.label}</span>
                     </button>
                   </motion.div>
                 );
               })}
             </div>
 
-            {/* Services List - Mobile (3D Horizontal) */}
+            {/* Mobile List - only visible chips rendered */}
             <div className="lg:hidden relative w-full h-full flex items-center justify-center perspective-1000 z-20">
               <div className="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[500px] h-20 flex items-center justify-center">
                 {SERVICES.map((service, index) => {
-                  const isActive = index === currentIndex;
+                  if (!visibleChipIndices.includes(index)) return null;
                   const style = getMobileChipStyle(index);
-
+                  const isActive = index === currentIndex;
                   return (
                     <motion.div
                       key={service.id}
@@ -414,37 +370,27 @@ export function ServicesCarousel() {
                         y: style.y,
                         rotateY: style.rotateY,
                       }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 100,
-                        damping: 20,
-                        mass: 0.8,
-                      }}
+                      transition={chipTransition}
                       className="absolute left-1/2 -translate-x-1/2"
-                      style={{ perspective: "1000px" }}
+                      style={{ perspective: "1000px", willChange: "transform, opacity" }}
                     >
                       <button
                         onClick={() => handleChipClick(index)}
+                        onTouchStart={() => setIsPaused(true)} // mobile touch pause
+                        onTouchEnd={() => setIsPaused(false)}
                         onMouseEnter={() => setIsPaused(true)}
                         onMouseLeave={() => setIsPaused(false)}
                         className={cn(
-                          "relative flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full transition-all duration-500 text-right group border whitespace-nowrap",
+                          "relative flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full transition-all duration-500 text-right group border whitespace-nowrap touch-manipulation",
                           isActive
                             ? "bg-purple-500 text-white border-purple-400 shadow-lg shadow-purple-500/30 z-10"
-                            : "bg-gray-800/80 text-gray-400 border-gray-700 hover:border-purple-500/50 backdrop-blur-sm",
+                            : "bg-gray-800/80 text-gray-400 border-gray-700 hover:border-purple-500/50 backdrop-blur-sm"
                         )}
                       >
-                        <div
-                          className={cn(
-                            "flex items-center justify-center transition-colors duration-500",
-                            isActive ? "text-white" : "text-gray-500",
-                          )}
-                        >
+                        <div className={cn("flex items-center justify-center transition-colors duration-500", isActive ? "text-white" : "text-gray-500")}>
                           <service.icon size={16} strokeWidth={2} />
                         </div>
-                        <span className="font-medium text-xs sm:text-sm">
-                          {service.label}
-                        </span>
+                        <span className="font-medium text-xs sm:text-sm">{service.label}</span>
                       </button>
                     </motion.div>
                   );
@@ -455,7 +401,6 @@ export function ServicesCarousel() {
 
           {/* Right Side - Preview Cards */}
           <div className="flex-1 min-h-[350px] md:min-h-[400px] lg:h-full relative bg-black/50 flex items-center justify-center py-8 md:py-12 lg:py-12 px-4 md:px-8 lg:px-8 overflow-hidden border-t lg:border-t-0 lg:border-l border-purple-500/20">
-            {/* Decorative Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
             <div className="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] aspect-[4/5] flex items-center justify-center">
@@ -477,23 +422,18 @@ export function ServicesCarousel() {
                       zIndex: isActive ? 20 : isPrev || isNext ? 10 : 0,
                       pointerEvents: isActive ? "auto" : "none",
                     }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 260,
-                      damping: 25,
-                      mass: 0.8,
-                    }}
+                    transition={cardTransition}
                     className="absolute inset-0 rounded-2xl md:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border-2 border-purple-500/30 bg-gray-900 origin-center shadow-2xl"
+                    style={{ willChange: "transform, opacity" }}
                   >
                     <img
                       src={service.image}
                       alt={service.label}
                       className={cn(
                         "w-full h-full object-cover transition-all duration-700",
-                        isActive
-                          ? "grayscale-0 blur-0 scale-100"
-                          : "grayscale blur-[1px] brightness-50 scale-110",
+                        isActive ? "grayscale-0 blur-0 scale-100" : "grayscale blur-[1px] brightness-50 scale-110"
                       )}
+                      loading="lazy"
                     />
 
                     <AnimatePresence>
@@ -502,7 +442,7 @@ export function ServicesCarousel() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.4 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
                           className="absolute inset-x-0 bottom-0 p-4 sm:p-6 md:p-8 pt-16 md:pt-24 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col justify-end"
                         >
                           <div className="bg-purple-500/20 backdrop-blur-md text-purple-200 px-3 py-1 rounded-full text-xs font-medium w-fit mb-2 md:mb-3 border border-purple-500/30">
@@ -515,13 +455,10 @@ export function ServicesCarousel() {
                       )}
                     </AnimatePresence>
 
-                    {/* Active Indicator */}
                     {isActive && (
                       <div className="absolute top-4 left-4 md:top-6 md:left-6 flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.8)] animate-pulse" />
-                        <span className="text-purple-300/80 text-xs font-medium">
-                          OnRequest
-                        </span>
+                        <span className="text-purple-300/80 text-xs font-medium">OnRequest</span>
                       </div>
                     )}
                   </motion.div>
@@ -539,9 +476,7 @@ export function ServicesCarousel() {
               onClick={() => handleChipClick(index)}
               className={cn(
                 "h-1.5 rounded-full transition-all duration-500",
-                index === currentIndex
-                  ? "w-6 md:w-8 bg-purple-500"
-                  : "w-1.5 bg-gray-700 hover:bg-gray-600",
+                index === currentIndex ? "w-6 md:w-8 bg-purple-500" : "w-1.5 bg-gray-700 hover:bg-gray-600"
               )}
             />
           ))}

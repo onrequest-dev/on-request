@@ -109,7 +109,7 @@ const FEATURES: Feature[] = [
     bgColor: "rgba(239, 68, 68, 0.08)",
   },
   {
-    id: 4,
+    id: 7, // كان 4 مكرر -> عدل إلى 7
     title: "3 نماذج للتعاون تناسبك",
     subtitle: "التعاون",
     content:
@@ -117,9 +117,9 @@ const FEATURES: Feature[] = [
     icon: GitBranch,
     relatedIds: [1, 8],
     status: "advanced",
-    energy: 7,
-    color: "text-green-400",
-    bgColor: "bg-green-500/10",
+    energy: 70,
+    color: "from-green-400 to-green-600",
+    bgColor: "rgba(34, 197, 94, 0.08)",
   },
   {
     id: 8,
@@ -305,7 +305,7 @@ export function FeaturesOrbital() {
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4">
             ما
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-200">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r font-extrabold text-white mb-4">
               {" "}
               يميزنا
             </span>
@@ -473,7 +473,7 @@ export function FeaturesOrbital() {
                       {activeFeature.content}
                     </p>
 
-                    <div className="mb-6">
+                    {/* <div className="mb-6">
                       <div className="flex justify-between items-center text-xs md:text-sm mb-2">
                         <span className="flex items-center gap-1.5 text-gray-400">
                           <Zap size={13} className="text-purple-400" />
@@ -497,7 +497,7 @@ export function FeaturesOrbital() {
                           }}
                         />
                       </div>
-                    </div>
+                    </div> */}
 
                     {activeFeature.relatedIds.length > 0 && (
                       <div className="pt-5 border-t border-gray-800/50">

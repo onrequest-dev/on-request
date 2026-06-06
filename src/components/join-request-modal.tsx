@@ -1,11 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { X, Send, Plus, Trash2, Sparkles, User, Phone, Briefcase, Link } from "lucide-react";
+import { motion, AnimatePresence, Transition, Easing } from "framer-motion";
+import { X, Send, Plus, Trash2, User, Phone, Briefcase, Link } from "lucide-react";
 
 interface JoinRequestModalProps {
   onClose: () => void;
+}
+
+// Escape HTML special characters for Telegram
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
@@ -15,6 +23,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
   const [links, setLinks] = useState<string[]>([""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const maxLinks = 5;
 
@@ -36,12 +45,55 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
     setLinks(newLinks);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMsg("");
 
-    setTimeout(() => {
+    const filteredLinks = links.filter(l => l.trim());
+    
+    // Escape user inputs for HTML
+    const safeName = escapeHtml(name);
+    const safeWhatsapp = escapeHtml(whatsapp);
+    const safeAbout = escapeHtml(about);
+    const safeLinks = filteredLinks.map(escapeHtml);
+
+    // Build HTML message for Telegram
+    let message = `<b>✨ طلب انضمام جديد لـ OnRequest ✨</b>\n\n`;
+    message += `<b>👤 الاسم:</b> ${safeName}\n`;
+    message += `<b>📱 واتساب:</b> ${safeWhatsapp}\n`;
+    message += `<b>📝 نبذة:</b>\n${safeAbout}\n\n`;
+    if (safeLinks.length > 0) {
+      message += `<b>🔗 الروابط:</b>\n${safeLinks.map(l => `• ${l}`).join('\n')}\n`;
+    }
+    message += `\n#طلب_انضمام #OnRequest`;
+
+    const botToken = "8736761252:AAFxGoTtmpTbQTy7gn9pBSQ7FKqdbSCSE44";
+    const chatId = "-1003688920562";
+
+    if (!botToken || !chatId) {
+      setErrorMsg("حدث خطأ في الإعدادات، يرجى المحاولة لاحقاً");
       setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: "HTML",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.description || "فشل الإرسال");
+      }
+
       setIsSuccess(true);
       
       setTimeout(() => {
@@ -51,8 +103,31 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
         setWhatsapp("");
         setAbout("");
         setLinks([""]);
-      }, 3000);
-    }, 1500);
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err instanceof Error ? err.message : "حدث خطأ، حاول مرة أخرى");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Mobile-optimized transitions with proper typing
+  const backdropTransition: Transition = {
+    duration: 0.2,
+    ease: "easeOut" as Easing
+  };
+  
+  const modalTransition: Transition = {
+    type: "spring",
+    stiffness: 400,
+    damping: 30,
+    mass: 0.4
+  };
+
+  const successTransition: Transition = {
+    duration: 0.2,
+    ease: "easeOut" as Easing
   };
 
   return (
@@ -60,104 +135,165 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={backdropTransition}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      {/* خلفية شفافة */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-0" />
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* محتوى المودال */}
+      {/* Modal Content */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        exit={{ opacity: 0, scale: 0.96, y: 5 }}
+        transition={modalTransition}
         className="relative z-10 w-full max-w-lg bg-gradient-to-br from-[#0F1F35] to-[#0A1628] border border-purple-500/20 rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         dir="rtl"
+        style={{ willChange: "transform, opacity" }}
       >
-
-        {/* زر الإغلاق */}
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all z-10"
+          className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all z-10 active:scale-95"
         >
           <X size={16} />
         </button>
 
-        {/* باقي المحتوى - أضف z-index نسبي */}
-
-          {/* عنوان */}
-          <h3 className="text-xl font-bold text-white text-center mb-2">
-            انضم إلى{" "}
-            <span className="bg-clip-text text-transparent text-white">
-              OnRequest
-            </span>
-          </h3>
-
+        {/* Title */}
+        <h3 className="text-xl font-bold text-white text-center mb-2">
+          انضم إلى{" "}
+          <span className="bg-clip-text font-bold text-white">
+            OnRequest
+          </span>
+        </h3>
         <p className="text-gray-400 text-sm text-center mb-6">
           املأ النموذج أدناه وسنتواصل معك قريباً
         </p>
 
         {isSuccess ? (
-          /* رسالة النجاح */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-8"
-          >
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03]">
-               <svg 
-            version="1.0" 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="100%" 
-            height="100%" 
-            viewBox="0 0 600.000000 600.000000" 
-            preserveAspectRatio="xMidYMid meet"
-            className="w-full h-full"
-          >
-            <g transform="translate(0.000000,600.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none" className="text-white">
-              <path d="M2805 5833 c-58 -6 -320 -42 -390 -54 -218 -37 -583 -163 -811 -280 -328 -167 -580 -355 -816 -612 -265 -287 -438 -560 -571 -897 -130 -329 -187 -635 -187 -1005 0 -327 35 -533 146 -857 102 -296 257 -580 465 -848 81 -105 282 -313 387 -401 162 -135 416 -301 563 -368 35 -15 89 -40 119 -53 212 -96 391 -157 625 -211 184 -43 253 -54 470 -69 348 -25 585 -5 905 76 186 47 293 78 339 98 25 11 89 35 141 55 317 118 639 328 906 590 61 59 126 126 145 148 330 386 524 735 650 1170 44 150 78 363 85 524 8 194 7 224 -4 336 -6 55 -11 106 -12 114 0 8 -2 12 -5 9 -3 -2 0 -64 5 -137 15 -195 -11 -515 -55 -676 -7 -27 -19 -75 -26 -105 -27 -123 -134 -420 -197 -545 -31 -62 -157 -279 -185 -320 -42 -60 -199 -268 -230 -304 -17 -20 -99 -104 -182 -186 -217 -217 -473 -399 -730 -520 -181 -86 -457 -184 -615 -220 -30 -7 -104 -24 -165 -38 -222 -51 -468 -64 -780 -43 -121 9 -256 23 -300 31 -221 44 -447 109 -610 173 -27 11 -72 29 -100 40 -92 37 -269 127 -390 199 -293 174 -545 401 -769 693 -175 227 -324 498 -412 750 -24 69 -49 139 -55 155 -27 75 -68 255 -84 365 -3 24 -9 65 -13 90 -10 62 -9 507 1 600 41 373 184 780 398 1130 160 261 497 629 712 778 452 312 783 454 1317 563 157 32 636 49 800 28 161 -20 289 -41 370 -60 312 -73 310 -73 425 -116 103 -39 114 -44 250 -111 193 -95 258 -136 483 -304 291 -217 592 -559 787 -893 146 -251 212 -410 285 -690 10 -38 19 -61 19 -50 0 11 -6 45 -15 75 -8 30 -26 98 -39 150 -28 111 -83 267 -121 342 -38 76 -155 267 -232 378 -226 328 -505 602 -877 862 -99 69 -340 193 -491 253 -121 48 -465 133 -648 161 -249 37 -521 52 -681 37z"/>
-              <path d="M2670 5779 c-36 -5 -94 -14 -130 -20 -36 -6 -87 -14 -115 -19 -182 -27 -557 -155 -774 -263 -317 -158 -563 -336 -794 -576 -94 -98 -239 -270 -288 -343 -98 -143 -132 -199 -196 -325 -108 -207 -177 -392 -238 -628 -14 -53 -37 -189 -54 -320 -17 -121 -14 -498 4 -624 59 -410 210 -804 442 -1153 146 -218 361 -462 538 -607 333 -273 780 -493 1215 -599 192 -47 265 -61 390 -73 160 -16 581 -16 705 0 102 13 255 44 297 60 12 4 45 12 73 16 27 4 61 13 75 20 14 7 43 16 65 20 36 6 244 80 340 120 149 63 364 181 462 253 36 26 94 68 130 94 140 100 348 303 484 474 163 203 222 295 358 546 40 76 116 269 153 388 15 52 35 117 43 144 8 26 15 59 15 72 0 14 7 41 15 61 8 19 15 50 15 67 1 17 7 58 15 91 8 33 17 107 19 165 l5 105 -14 -80 c-68 -393 -144 -675 -243 -903 -45 -104 -155 -307 -215 -396 -244 -364 -587 -692 -935 -897 -182 -107 -552 -267 -654 -283 -20 -3 -54 -12 -75 -20 -96 -37 -336 -85 -488 -98 -219 -18 -614 -10 -760 17 -447 82 -787 207 -1151 427 -67 40 -143 89 -169 108 -453 329 -818 820 -1001 1345 -109 315 -144 518 -144 843 0 118 4 243 9 276 5 34 15 102 22 151 46 349 230 799 455 1115 123 173 360 431 514 562 113 96 398 279 560 360 162 81 445 186 626 231 378 95 793 112 1214 48 154 -24 432 -95 529 -136 33 -14 66 -25 73 -25 28 0 386 -184 491 -252 352 -228 630 -495 859 -828 110 -158 294 -509 349 -662 7 -21 17 -38 22 -38 8 0 3 27 -13 65 -4 11 -22 56 -40 100 -51 129 -77 182 -161 330 -289 509 -743 944 -1249 1196 -228 114 -324 150 -545 205 -340 85 -419 95 -775 99 -162 2 -324 -1 -360 -6z"/>
-              <path d="M2755 5305 c-282 -29 -596 -116 -814 -225 -350 -176 -693 -481 -918 -819 -170 -256 -294 -583 -338 -894 -19 -134 -19 -431 0 -566 32 -226 107 -462 210 -665 110 -217 227 -377 415 -570 333 -341 754 -570 1230 -666 578 -116 1127 -24 1655 280 553 317 943 833 1085 1435 58 246 66 604 19 830 -25 117 -53 227 -85 325 -40 123 -162 373 -232 479 -391 583 -1034 974 -1727 1050 -164 18 -365 20 -500 6z m495 -46 c399 -45 779 -190 1113 -427 378 -267 685 -674 815 -1082 44 -137 89 -331 101 -436 15 -127 14 -368 -3 -499 -50 -388 -228 -792 -473 -1075 -151 -174 -306 -315 -475 -433 -136 -94 -446 -257 -489 -257 -8 0 -19 -4 -25 -9 -25 -25 -237 -85 -413 -117 -297 -53 -626 -42 -941 33 -434 103 -854 345 -1153 665 -399 427 -597 913 -597 1467 0 246 34 447 120 701 62 182 203 430 348 615 71 89 256 274 348 347 261 207 584 369 892 448 80 20 271 55 342 63 69 7 417 5 490 -4z"/>
-              <path d="M2835 5103 c-368 -44 -671 -145 -945 -314 -315 -194 -631 -537 -785 -854 -215 -443 -260 -908 -130 -1360 14 -49 34 -108 45 -130 10 -22 25 -56 33 -75 8 -19 35 -70 61 -113 25 -43 46 -81 46 -83 0 -4 59 -90 81 -119 106 -136 254 -291 372 -391 138 -116 474 -331 501 -321 27 10 186 300 173 314 -2 1 -14 -11 -27 -29 -12 -17 -17 -27 -10 -23 9 5 11 4 6 -3 -4 -7 -13 -12 -20 -12 -8 0 -16 -8 -18 -17 -8 -29 -102 -171 -117 -178 -24 -10 -300 165 -440 278 -129 104 -381 374 -381 408 0 5 11 9 24 9 14 0 55 11 93 24 140 51 410 106 515 106 39 0 49 -5 88 -46 124 -126 360 -274 536 -334 173 -60 477 -94 629 -70 339 52 578 163 794 366 l92 87 72 -6 c133 -10 294 -44 462 -98 50 -16 100 -29 113 -29 12 0 22 -4 22 -8 0 -31 -276 -320 -386 -404 -16 -12 -31 -25 -34 -29 -9 -11 -154 -115 -210 -150 -100 -64 -177 -102 -192 -96 -8 3 -43 52 -78 109 -35 56 -68 106 -73 109 -5 4 -7 11 -3 17 3 6 0 14 -8 19 -8 4 -15 10 -15 13 0 6 -38 88 -50 110 -5 8 -14 28 -20 43 -13 34 -35 43 -64 28 -21 -11 -21 -11 5 -6 15 3 30 1 33 -5 3 -5 0 -10 -7 -10 -38 -1 -93 -13 -96 -21 -5 -13 -146 -55 -261 -79 -76 -15 -138 -20 -266 -20 -197 0 -302 18 -497 84 -69 24 -131 40 -136 37 -8 -5 -25 -46 -25 -61 0 -3 -11 -23 -24 -45 -18 -31 -19 -34 -4 -15 12 14 25 30 31 37 5 7 10 20 10 30 1 42 14 45 82 14 160 -73 353 -111 563 -111 209 0 379 33 564 109 86 36 85 36 77 16 -3 -9 4 -24 19 -37 13 -11 27 -35 31 -52 3 -16 10 -37 14 -46 5 -8 16 -33 25 -54 18 -41 141 -255 154 -269 10 -10 213 104 327 183 258 183 542 481 657 690 145 265 206 459 225 715 27 355 -39 687 -199 1007 -102 204 -224 367 -413 554 -175 172 -342 289 -579 405 -191 93 -355 144 -591 185 -84 15 -399 26 -471 17z m410 -54 c346 -38 711 -187 1010 -413 169 -128 385 -359 500 -537 62 -95 166 -311 200 -414 31 -94 70 -257 80 -335 4 -30 9 -64 12 -75 11 -51 4 -347 -11 -447 -19 -122 -50 -248 -72 -290 l-15 -29 -30 26 c-29 23 -38 25 -147 26 -64 1 -162 4 -217 8 l-100 6 70 13 c66 11 266 28 365 29 35 1 49 7 67 28 29 33 29 37 -4 76 l-27 32 -171 -6 c-93 -3 -230 -15 -304 -27 -162 -24 -154 -24 -142 -2 28 54 40 277 20 403 -9 60 -8 83 10 167 87 402 34 878 -135 1229 -46 97 -78 129 -114 118 -25 -8 -455 -434 -539 -535 -94 -113 -91 -111 -153 -94 -237 63 -504 64 -762 3 -44 -10 -85 -15 -91 -11 -7 4 -32 32 -55 62 -61 80 -546 559 -577 571 -41 15 -71 -13 -120 -111 -115 -234 -173 -514 -173 -837 0 -141 20 -353 39 -419 5 -17 6 -120 4 -230 -4 -157 -2 -213 10 -264 9 -36 14 -66 12 -68 -1 -2 -65 6 -141 17 -186 28 -408 41 -454 27 -20 -6 -41 -22 -49 -38 -14 -25 -14 -29 5 -55 20 -26 27 -28 120 -35 178 -13 330 -29 360 -38 28 -8 28 -8 4 -9 -14 -1 -97 -4 -185 -7 -212 -7 -240 -11 -274 -40 l-29 -24 -10 28 c-48 122 -92 376 -92 530 0 296 66 581 200 857 151 314 450 641 760 832 114 70 152 90 285 146 229 97 467 155 680 164 72 3 132 7 134 9 5 4 127 -4 246 -17z m-1140 -647 c248 -245 340 -343 384 -407 19 -27 35 -51 35 -52 1 -1 46 9 100 23 107 25 127 29 286 44 151 15 415 -14 535 -60 15 -6 29 -9 30 -8 2 2 25 32 51 68 55 75 562 590 581 590 15 0 55 -78 105 -200 130 -319 164 -744 88 -1106 -18 -86 -19 -108 -9 -188 11 -85 6 -294 -7 -357 -5 -23 -14 -28 -62 -38 -32 -7 -88 -21 -127 -31 -38 -10 -98 -24 -133 -30 -34 -7 -65 -17 -68 -21 -3 -5 -14 -9 -24 -9 -24 0 -313 -96 -358 -119 -21 -11 -30 -21 -24 -25 17 -10 230 29 315 59 23 8 49 15 57 15 8 0 44 9 80 19 230 69 519 121 765 136 50 4 112 8 139 10 62 4 96 -8 96 -35 0 -22 -2 -22 -75 -21 -44 2 -284 -20 -390 -34 -196 -27 -347 -61 -376 -84 -32 -26 -16 -43 34 -37 120 16 725 24 760 10 43 -16 15 -73 -28 -58 -29 10 -590 16 -628 6 -22 -5 -37 -18 -47 -40 -11 -23 -22 -32 -40 -32 -33 0 -297 -22 -430 -36 -65 -6 -187 -33 -214 -46 -12 -7 -15 -13 -8 -20 6 -6 59 -6 153 2 234 19 518 24 595 10 38 -6 87 -14 109 -16 46 -6 209 -51 305 -86 51 -18 66 -28 68 -46 5 -30 -30 -29 -127 4 -152 52 -410 104 -520 104 -47 0 -50 -2 -137 -86 -138 -133 -287 -226 -462 -289 -233 -83 -426 -102 -676 -66 -318 46 -576 175 -787 393 -31 32 -63 56 -70 54 -8 -3 -45 -7 -84 -10 -38 -3 -95 -10 -125 -15 -30 -6 -68 -12 -85 -14 -47 -7 -219 -55 -277 -77 -69 -26 -108 -26 -108 -1 0 10 6 23 13 29 28 23 261 89 411 117 105 19 344 19 586 -1 206 -17 230 -17 230 0 0 31 -247 69 -591 91 l-96 7 -16 34 c-10 19 -26 36 -40 39 -12 4 -170 4 -350 2 l-327 -3 0 23 c0 18 6 23 28 24 15 0 41 2 57 4 114 13 591 5 698 -11 33 -5 37 -3 37 15 0 11 -8 24 -17 29 -26 13 -132 41 -178 47 -22 2 -62 9 -90 15 -56 11 -95 17 -175 25 -30 3 -68 7 -85 9 -16 3 -89 8 -162 11 -118 7 -132 9 -136 27 -9 33 31 39 181 28 232 -17 522 -62 672 -103 93 -26 183 -50 220 -58 19 -4 88 -21 154 -37 65 -17 124 -28 131 -26 7 3 16 1 20 -5 8 -14 62 -14 70 -2 7 13 -12 22 -110 56 -44 14 -89 31 -100 36 -11 5 -63 20 -115 34 -183 50 -325 87 -350 92 -135 25 -124 9 -141 188 -8 93 -8 144 2 227 9 79 10 117 2 145 -30 104 -38 196 -37 438 1 225 3 263 27 386 30 160 68 279 133 418 31 67 53 101 63 101 9 0 106 -89 216 -198z m-943 -1986 c5 3 140 5 301 5 l292 -1 30 -30 c37 -38 29 -45 -66 -54 -76 -7 -302 -62 -391 -96 -37 -14 -65 -32 -79 -52 -21 -29 -22 -29 -39 -11 -25 25 -130 216 -130 235 0 13 7 14 37 8 20 -5 41 -6 45 -4z m3600 3 l157 -2 -15 -36 c-8 -20 -40 -78 -71 -130 l-56 -95 -22 26 c-12 15 -36 33 -52 42 -76 39 -391 116 -475 116 -15 0 -29 4 -32 9 -9 14 42 69 67 74 12 2 94 2 182 1 88 -1 231 -4 317 -5z"/>
-              <path d="M1896 4178 c-20 -32 -34 -106 -51 -271 -14 -132 -21 -437 -10 -437 2 0 24 21 47 48 85 94 155 155 260 224 l107 72 -21 38 c-48 84 -277 348 -303 348 -8 0 -21 -10 -29 -22z m113 -114 c93 -100 171 -204 171 -229 -1 -14 -24 -35 -76 -69 -41 -27 -108 -80 -149 -118 -61 -57 -76 -67 -81 -53 -10 25 4 284 21 405 17 117 23 140 35 140 4 0 40 -34 79 -76z"/>
-              <path d="M3981 4113 c-148 -162 -231 -279 -216 -303 4 -6 23 -19 44 -29 66 -34 215 -157 289 -237 l72 -79 0 147 c0 198 -31 481 -62 561 -6 15 -18 27 -28 27 -10 0 -54 -39 -99 -87z m110 -40 c28 -144 51 -483 33 -483 -3 0 -47 36 -99 80 -52 44 -120 96 -150 116 -30 20 -55 43 -55 51 0 44 233 314 253 294 5 -5 13 -31 18 -58z"/>
-              <path d="M2150 3154 c-76 -17 -89 -27 -68 -51 18 -22 68 -127 68 -145 0 -26 59 -115 105 -157 52 -48 130 -87 196 -99 24 -4 94 -5 154 -2 103 5 110 6 108 25 -19 163 -56 248 -142 326 -76 70 -78 71 -135 96 -59 25 -189 29 -286 7z m293 -57 c74 -37 168 -138 195 -210 30 -80 37 -127 21 -138 -8 -5 -59 -9 -114 -9 -81 0 -110 5 -156 23 -69 29 -119 66 -152 115 -24 34 -97 202 -97 222 0 16 83 29 166 26 64 -2 93 -8 137 -29z"/>
-              <path d="M3568 3147 c-142 -60 -255 -209 -274 -362 -11 -89 -24 -79 116 -85 134 -5 190 3 256 40 59 34 124 90 141 124 9 17 19 33 22 36 4 3 24 49 45 102 21 54 42 100 47 104 18 11 8 24 -28 40 -26 11 -76 18 -153 21 -104 3 -120 1 -172 -20z m236 -23 c27 -4 50 -13 53 -21 3 -8 -11 -58 -33 -111 -30 -78 -48 -107 -88 -147 -83 -83 -128 -99 -278 -103 l-128 -4 0 24 c0 42 31 131 62 180 92 146 230 206 412 182z"/>
-              <path d="M2060 2481 c0 -11 -2 -26 -5 -34 -5 -11 16 -16 97 -26 57 -7 144 -19 193 -27 101 -16 194 -19 179 -6 -12 12 -415 112 -449 112 -8 0 -15 -9 -15 -19z"/>
-              <path d="M3830 2483 c-73 -17 -233 -58 -298 -77 -44 -12 -56 -28 -26 -32 9 -2 58 4 108 12 180 30 280 44 309 44 22 0 28 4 23 16 -3 9 -6 24 -6 35 0 23 -17 23 -110 2z"/>
-              <path d="M2880 2448 c-25 -5 -49 -13 -53 -17 -4 -5 21 -47 57 -95 87 -115 89 -158 9 -208 -34 -20 -50 -23 -145 -23 -119 0 -125 -8 -32 -45 73 -30 161 -24 239 15 53 27 56 27 74 11 56 -51 184 -61 265 -20 73 37 73 39 -4 36 -143 -7 -227 31 -237 106 -5 37 -1 47 34 94 22 29 52 66 67 81 21 22 24 32 16 42 -26 31 -192 44 -290 23z m205 -38 l27 -10 -25 -33 c-81 -107 -93 -147 -62 -208 16 -29 16 -30 -10 -23 -15 4 -31 1 -40 -6 -19 -16 -19 -3 0 30 32 55 15 111 -62 203 -28 34 -29 44 -5 50 34 9 151 7 177 -3z"/>
-              <path d="M3428 1803 c12 -2 30 -2 40 0 9 3 -1 5 -23 4 -22 0 -30 -2 -17 -4z"/>
-              <path d="M5819 3763 c5 -10 10 -22 11 -28 2 -14 10 -21 10 -9 0 22 -13 54 -22 54 -5 0 -5 -7 1 -17z"/>
-              <path d="M5847 3680 c9 -53 25 -84 17 -35 -3 22 -10 47 -15 55 -5 10 -6 2 -2 -20z"/>
-              <path d="M5876 3575 c3 -16 12 -66 20 -109 7 -43 16 -82 20 -85 3 -3 4 8 0 24 -3 17 -10 58 -16 93 -6 35 -15 73 -21 85 -8 18 -8 17 -3 -8z"/>
-              <path d="M5927 3465 c3 -27 7 -52 9 -54 7 -8 2 54 -6 79 -6 17 -7 9 -3 -25z"/>
-              <path d="M5929 3190 c3 -69 6 -150 6 -182 0 -31 4 -54 9 -51 9 6 0 213 -14 304 -4 31 -5 1 -1 -71z"/>
-              <path d="M4700 1333 c-26 -9 -60 -46 -60 -64 0 -10 14 -28 30 -41 108 -82 139 -127 140 -199 0 -79 71 -116 121 -63 50 53 18 190 -67 283 -50 56 -129 96 -164 84z m81 -63 c79 -52 129 -139 129 -224 0 -46 -3 -54 -24 -64 -31 -14 -36 -8 -36 43 0 23 -5 57 -11 76 -18 51 -76 118 -125 142 -48 23 -53 31 -26 46 28 17 46 13 93 -19z"/>
-              <path d="M4523 1216 c-25 -22 -28 -31 -28 -88 0 -53 6 -73 36 -128 37 -68 118 -144 164 -156 37 -9 73 3 91 31 25 39 11 70 -50 109 -62 40 -100 97 -111 166 -7 45 -38 90 -61 90 -7 0 -26 -11 -41 -24z m62 -57 c5 -90 63 -177 145 -219 46 -24 49 -32 16 -49 -43 -23 -129 35 -180 122 -37 63 -48 161 -20 182 28 21 36 14 39 -36z"/>
-              <path d="M1455 1145 c-107 -54 -149 -211 -80 -301 80 -104 230 -89 300 30 63 108 34 216 -72 270 -40 20 -109 21 -148 1z m135 -33 c103 -51 107 -201 6 -270 -87 -60 -216 9 -216 115 0 39 31 113 56 133 52 42 100 48 154 22z"/>
-              <path d="M1486 1035 c-44 -47 -40 -120 7 -140 39 -16 60 -7 87 38 26 41 25 78 0 105 -28 29 -66 28 -94 -3z m64 -44 c0 -33 -11 -51 -31 -51 -22 0 -27 38 -7 58 18 18 38 14 38 -7z"/>
-              <path d="M4308 1065 c-109 -64 -131 -100 -85 -143 15 -14 36 -22 60 -22 33 0 40 -5 79 -62 47 -71 75 -97 101 -98 18 0 77 50 77 66 0 5 -22 47 -50 94 -46 78 -48 86 -35 105 27 36 27 44 5 75 -30 42 -59 39 -152 -15z m128 -2 c12 -16 9 -21 -18 -44 l-30 -25 32 -55 c17 -30 42 -69 56 -88 30 -43 30 -55 0 -69 -23 -10 -27 -6 -75 66 -83 127 -71 117 -109 95 -32 -17 -33 -17 -47 0 -19 26 -10 42 33 61 20 9 57 30 82 46 54 34 59 35 76 13z"/>
-              <path d="M1797 956 c-31 -29 -110 -249 -102 -286 6 -26 50 -60 77 -60 8 0 23 9 33 20 26 29 38 25 57 -20 12 -30 26 -45 54 -56 60 -25 80 -3 135 152 26 70 44 135 41 144 -18 52 -80 74 -116 41 -28 -26 -33 -26 -40 2 -7 31 -55 75 -88 81 -19 3 -34 -2 -51 -18z m67 -26 c28 -10 37 -35 59 -165 12 -69 15 -76 22 -50 11 45 47 149 55 158 8 9 60 -12 60 -23 0 -9 -91 -263 -96 -269 -2 -3 -19 3 -37 11 -31 15 -35 22 -50 92 -9 42 -17 92 -17 111 0 19 -4 35 -10 35 -5 0 -10 -6 -10 -14 0 -7 -11 -47 -24 -87 -25 -78 -43 -93 -79 -67 -17 13 -17 15 2 58 10 25 32 84 47 132 16 49 34 88 41 88 6 0 23 -4 37 -10z"/>
-              <path d="M4004 919 c-32 -9 -93 -69 -95 -92 -6 -64 15 -108 60 -132 26 -13 29 -19 24 -49 -6 -37 4 -53 44 -74 32 -18 71 -15 119 9 85 41 109 130 53 193 -16 19 -39 38 -50 41 -14 5 -19 16 -19 44 0 59 -56 83 -136 60z m106 -44 c0 -33 -18 -53 -45 -47 -16 3 -33 -2 -45 -13 -34 -31 -24 -38 45 -31 48 5 72 3 94 -8 51 -27 57 -88 13 -137 -25 -28 -35 -32 -85 -33 -63 0 -72 4 -62 33 5 16 15 21 44 21 43 0 75 27 65 54 -6 15 -14 17 -52 11 -24 -4 -50 -9 -56 -11 -7 -3 -28 6 -47 19 -26 18 -35 31 -37 58 -3 30 2 41 31 66 27 23 44 30 85 32 42 2 52 -1 52 -14z"/>
-              <path d="M3702 810 c-66 -18 -102 -46 -102 -79 0 -37 73 -243 95 -269 26 -30 61 -32 136 -7 91 30 114 84 59 135 -16 15 -30 36 -30 45 0 9 -9 30 -20 46 -16 22 -19 33 -10 48 14 28 13 46 -7 69 -26 30 -51 32 -121 12z m102 -36 c11 -28 6 -34 -39 -45 -53 -13 -58 -19 -49 -54 5 -22 11 -25 28 -20 11 4 33 9 49 12 25 5 27 3 27 -26 0 -25 -4 -31 -22 -31 -37 0 -51 -15 -44 -44 6 -26 33 -35 52 -17 5 5 24 12 42 16 25 5 32 3 34 -9 0 -9 1 -21 2 -27 1 -14 -110 -50 -143 -47 -21 3 -29 15 -53 88 -51 151 -57 174 -52 180 8 7 115 37 140 39 12 0 25 -6 28 -15z"/>
-              <path d="M2221 793 c-23 -20 -101 -223 -101 -265 0 -17 10 -34 26 -47 31 -24 46 -26 73 -9 17 10 24 7 49 -20 19 -20 40 -32 55 -32 33 0 70 46 64 78 -3 14 5 35 19 55 61 82 66 136 18 190 -25 29 -114 67 -158 67 -13 0 -33 -8 -45 -17z m99 -33 c54 -15 78 -30 96 -65 12 -24 11 -32 -9 -73 -15 -33 -29 -48 -45 -50 -22 -3 -23 -7 -17 -57 7 -56 1 -67 -33 -59 -17 5 -22 17 -28 60 -4 39 -12 58 -25 65 -15 8 -21 6 -25 -8 -24 -74 -38 -86 -73 -64 -12 8 -9 24 18 98 18 48 37 96 42 105 5 10 9 26 9 36 0 24 10 33 29 28 9 -3 36 -10 61 -16z"/>
-              <path d="M2271 673 c-15 -32 -1 -45 44 -41 24 2 31 8 33 29 2 20 -2 28 -20 33 -38 10 -44 7 -57 -21z"/>
-              <path d="M2583 716 c-22 -18 -33 -40 -41 -78 -6 -29 -18 -85 -27 -125 -23 -111 2 -143 126 -157 51 -6 57 -5 82 20 31 31 34 50 12 82 -14 19 -14 24 1 47 9 14 14 36 12 50 -4 17 2 34 18 53 49 56 19 105 -72 117 -31 4 -63 9 -69 11 -7 3 -26 -6 -42 -20z m145 -32 c25 -4 32 -10 32 -28 0 -32 -4 -34 -55 -26 -50 8 -60 4 -67 -27 -5 -19 -1 -22 33 -28 44 -8 50 -13 43 -42 -5 -18 -13 -21 -52 -20 -44 2 -47 0 -50 -24 -3 -28 15 -39 71 -39 25 0 28 -3 25 -27 -3 -27 -4 -28 -61 -25 -32 2 -69 7 -83 12 -22 9 -24 13 -18 52 3 24 12 65 20 92 8 27 14 60 14 72 0 13 4 35 10 49 11 28 14 28 138 9z"/>
-              <path d="M3407 722 c-10 -10 -17 -24 -17 -30 0 -18 -15 -14 -35 8 -25 27 -66 25 -94 -4 l-23 -24 16 -102 c18 -116 33 -149 78 -182 25 -18 46 -23 90 -23 49 0 61 4 88 30 48 46 54 83 32 203 -12 62 -27 110 -37 122 -23 25 -76 26 -98 2z m95 -122 c21 -128 14 -164 -38 -186 -43 -18 -68 -18 -104 1 -40 21 -47 36 -65 155 -17 106 -14 125 21 118 15 -2 23 -23 39 -99 22 -107 37 -133 69 -123 12 4 24 11 27 16 6 9 -2 70 -20 157 -13 62 -8 73 27 69 25 -3 27 -7 44 -108z"/>
-              <path d="M2955 696 c-66 -29 -95 -84 -95 -178 0 -109 63 -180 166 -185 30 -1 63 -7 73 -13 31 -16 57 -12 89 15 43 36 46 60 11 99 -25 29 -29 42 -29 92 0 79 -29 131 -90 162 -50 25 -82 27 -125 8z m114 -40 c56 -30 72 -88 59 -216 -3 -23 0 -25 30 -22 37 2 44 -19 15 -50 -20 -22 -29 -22 -68 -2 -20 10 -41 13 -64 9 -44 -8 -102 17 -124 55 -21 35 -23 154 -3 189 27 48 99 65 155 37z"/>
-              <path d="M2976 588 c-9 -13 -16 -43 -16 -68 0 -37 5 -52 26 -71 l26 -24 -7 26 c-7 30 10 48 28 30 6 -6 17 -11 25 -11 10 0 12 13 7 57 -3 32 -11 63 -17 70 -16 20 -55 15 -72 -9z"/>
-            </g>
-          </svg>
-            </div>
-            <h4 className="text-xl font-bold text-white mb-2">تم الإرسال بنجاح!</h4>
-            <p className="text-gray-400 text-sm">سنراجع طلبك ونتواصل معك قريباً</p>
-          </motion.div>
+          /* Success Message */
+<motion.div
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  exit={{ opacity: 0, scale: 0.95 }}
+  transition={successTransition}
+  className="text-center py-8 relative"
+>
+  {/* Animated background particles */}
+  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: [0, 0.3, 0], scale: [0.8, 1.2, 0.8] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-500/10 rounded-full blur-xl"
+    />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: [0, 0.2, 0], y: [20, -20, 20] }}
+      transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+      className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full blur-lg"
+    />
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: [0, 0.15, 0], y: [-20, 20, -20] }}
+      transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
+      className="absolute bottom-0 left-0 w-24 h-24 bg-teal-500/10 rounded-full blur-lg"
+    />
+  </div>
+
+  {/* Animated checkmark with confetti effect */}
+  <div className="relative z-10">
+    <motion.div
+      initial={{ scale: 0, rotate: -180 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+      className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-green-500/30 to-emerald-500/20 border-2 border-green-400/50 flex items-center justify-center shadow-2xl shadow-green-500/20"
+    >
+      <motion.svg
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+        className="w-10 h-10 text-green-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <motion.path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2.5}
+          d="M5 13l4 4L19 7"
+        />
+      </motion.svg>
+    </motion.div>
+
+    {/* Confetti particles */}
+    <div className="absolute inset-0 pointer-events-none">
+      {[...Array(12)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
+          animate={{
+            x: [0, (Math.random() - 0.5) * 100],
+            y: [0, -60 - Math.random() * 40],
+            scale: [0, 0.8 + Math.random() * 0.5],
+            opacity: [0, 1, 0],
+          }}
+          transition={{ duration: 1.2, delay: 0.2 + i * 0.05, ease: "easeOut" }}
+          className="absolute top-24 left-1/2 w-1.5 h-1.5 rounded-full"
+          style={{
+            backgroundColor: `hsl(${120 + Math.random() * 60}, 80%, 60%)`,
+            left: `calc(50% + ${(Math.random() - 0.5) * 80}px)`,
+          }}
+        />
+      ))}
+    </div>
+
+    {/* Main text with gradient */}
+    <motion.h4
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.5, duration: 0.4 }}
+      className="text-2xl font-bold mb-2 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent"
+    >
+      تم الإرسال بنجاح!
+    </motion.h4>
+
+    {/* Subtle divider */}
+    <motion.div
+      initial={{ width: 0 }}
+      animate={{ width: 60 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="h-px bg-gradient-to-r from-transparent via-green-400/50 to-transparent mx-auto mb-3"
+    />
+
+    <motion.p
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.65, duration: 0.4 }}
+      className="text-gray-300 text-sm max-w-xs mx-auto"
+    >
+      تم استلام طلبك بنجاح
+      <span className="block text-xs text-gray-500 mt-1">سنراجع طلبك ونتواصل معك قريباً</span>
+    </motion.p>
+
+    {/* Sparkle effect around text */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: [0, 0.5, 0] }}
+      transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}
+      className="absolute -inset-4 pointer-events-none"
+    >
+      <div className="absolute top-1/2 left-1/2 w-40 h-40 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-full blur-2xl" />
+    </motion.div>
+  </div>
+</motion.div>
         ) : (
-          /* النموذج */
+          /* Form */
           <form onSubmit={handleSubmit} className="space-y-4 relative">
-            {/* الاسم */}
+            {/* Name */}
             <div className="relative z-10">
               <label className="block text-gray-400 text-xs mb-1.5">الاسم الكامل</label>
               <div className="relative">
@@ -173,7 +309,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
               </div>
             </div>
 
-            {/* رقم الواتساب */}
+            {/* WhatsApp */}
             <div className="relative z-10">
               <label className="block text-gray-400 text-xs mb-1.5">رقم الواتساب</label>
               <div className="relative">
@@ -190,7 +326,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
               </div>
             </div>
 
-            {/* نبذة عنك */}
+            {/* About */}
             <div className="relative z-10">
               <label className="block text-gray-400 text-xs mb-1.5">
                 المجال الذي ترغب العمل به ونبذة عنك
@@ -208,7 +344,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
               </div>
             </div>
 
-            {/* روابط التواصل */}
+            {/* Links */}
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-gray-400 text-xs">
@@ -218,7 +354,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
                   <button
                     type="button"
                     onClick={addLink}
-                    className="flex items-center gap-1 text-purple-400 hover:text-purple-300 text-xs transition-colors"
+                    className="flex items-center gap-1 text-purple-400 hover:text-purple-300 text-xs transition-colors active:scale-95"
                   >
                     <Plus size={14} />
                     <span>إضافة رابط</span>
@@ -244,7 +380,7 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
                       <button
                         type="button"
                         onClick={() => removeLink(index)}
-                        className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all flex-shrink-0"
+                        className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all flex-shrink-0 active:scale-95"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -254,28 +390,46 @@ export function JoinRequestModal({ onClose }: JoinRequestModalProps) {
               </div>
             </div>
 
-            {/* زر الإرسال */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                  />
-                  <span>جاري الإرسال...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  <span>إرسال الطلب</span>
-                </>
-              )}
-            </button>
+            {/* Error message */}
+            {errorMsg && (
+              <p className="text-red-400 text-xs text-center">{errorMsg}</p>
+            )}
+
+{/* Submit button - Glassmorphism with Animated Purple Border */}
+<button
+  type="submit"
+  disabled={isSubmitting}
+  className="relative group flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-transparent text-white font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {/* Border container */}
+  <div className="absolute inset-0 rounded-xl border border-white group-hover:border-purple-500 transition-colors duration-500" />
+
+  {/* Animated border line (runs on hover) */}
+  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+    <div className="absolute -inset-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-purple-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+    </div>
+  </div>
+
+  {/* Inner content */}
+  <span className="relative z-10 flex items-center gap-2">
+    {isSubmitting ? (
+      <>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+        />
+        <span>جاري الإرسال...</span>
+      </>
+    ) : (
+      <>
+        <Send className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+        <span>إرسال الطلب</span>
+      </>
+    )}
+  </span>
+</button>
           </form>
         )}
       </motion.div>
