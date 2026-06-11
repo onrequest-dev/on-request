@@ -1,14 +1,14 @@
 // components/ui/faq-accordion.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, Variants, Easing } from "framer-motion";
+import React, { useState, useRef, useMemo, useCallback, useEffect } from "react";
+import { motion, Variants, Easing, AnimatePresence, Transition } from "framer-motion";
 import { ChevronDown, HelpCircle, Zap } from "lucide-react";
 
 const cn = (...classes: (string | undefined | false)[]) =>
   classes.filter(Boolean).join(" ");
 
-// FAQ Data based on your questions
+// FAQ Data (same as before)
 const faqs = [
   {
     question: "لماذا تعتبر OnRequest أفضل شركة برمجة في سوريا لتنفيذ مشروعي؟",
@@ -86,125 +86,207 @@ const faqs = [
   },
 ];
 
-// Single FAQ Item Component
-const FAQItem = ({
+// Single FAQ Item - Using Framer Motion height animation
+const FAQItem = React.memo(({
   faq,
   index,
   isOpen,
-  onClick,
+  onToggle,
 }: {
   faq: { question: string; answer: string };
   index: number;
   isOpen: boolean;
-  onClick: () => void;
+  onToggle: () => void;
 }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
+
+  // Measure content when open state changes or answer changes
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      setContentHeight(contentRef.current.scrollHeight);
+    } else {
+      // Small delay to ensure DOM updates
+      const timer = setTimeout(() => setContentHeight(undefined), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, faq.answer]);
+
+  // Mobile‑optimized transition
+  const heightTransition: Transition = {
+    type: "tween",
+    duration: 0.25,
+    ease: "easeInOut",
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: index * 0.05, duration: 0.5 }}
+    <div
       className={cn(
-        "border-b border-purple-500/20 transition-all duration-300",
-        isOpen && "bg-purple-500/5 rounded-2xl border-b-0 px-6 -mx-6",
+        "border-b border-purple-500/20 transition-colors duration-150",
+        isOpen
+          ? "bg-purple-500/[0.03] rounded-2xl border-b-0"
+          : "hover:bg-purple-500/[0.02]"
       )}
+      style={{ willChange: "transform", transform: "translateZ(0)" }}
     >
       <button
-        onClick={onClick}
-        className="w-full py-6 flex items-center justify-between gap-4 text-right group"
+        onClick={onToggle}
+        className="w-full py-4 sm:py-5 flex items-center justify-between gap-3 text-right group touch-manipulation"
+        style={{ WebkitTapHighlightColor: "transparent" }}
       >
-        <div className="flex items-center gap-4">
-          <motion.div
-            animate={{ rotate: isOpen ? 90 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-purple-400"
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div
+            className={cn(
+              "flex-shrink-0 transition-transform duration-200",
+              isOpen ? "rotate-90" : "rotate-0"
+            )}
           >
-            <ChevronDown className="h-5 w-5" />
-          </motion.div>
-          <span className="text-lg font-medium text-gray-200 group-hover:text-white transition-colors">
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
+                isOpen ? "text-purple-400" : "text-gray-500 group-hover:text-purple-400"
+              )}
+            />
+          </div>
+          <span
+            className={cn(
+              "text-sm sm:text-base font-medium transition-colors duration-150 text-right leading-relaxed",
+              isOpen ? "text-white" : "text-gray-300 group-hover:text-white"
+            )}
+          >
             {faq.question}
           </span>
         </div>
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          className="w-6 h-6 rounded-full bg-purple-500/10 flex items-center justify-center"
+        <div
+          className={cn(
+            "w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-150",
+            isOpen
+              ? "bg-purple-500/20 text-purple-400"
+              : "bg-purple-500/10 text-gray-500 group-hover:text-purple-400"
+          )}
         >
-          <HelpCircle className="h-3 w-3 text-purple-400" />
-        </motion.div>
+          <HelpCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        </div>
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="pb-6 pr-9 text-gray-400 leading-relaxed border-r border-purple-500/20 mr-2">
-              {faq.answer}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {/* Smooth height animation with Framer Motion */}
+      <motion.div
+        initial={false}
+        animate={{
+          height: isOpen && contentHeight !== undefined ? contentHeight : 0,
+          opacity: isOpen ? 1 : 0,
+        }}
+        transition={heightTransition}
+        className="overflow-hidden"
+        style={{ willChange: "height, opacity" }}
+      >
+        <div
+          ref={contentRef}
+          className="pb-4 sm:pb-5 pr-6 sm:pr-9 text-gray-400 leading-relaxed border-r border-purple-500/20 mr-2 text-sm sm:text-base"
+        >
+          {faq.answer}
+        </div>
+      </motion.div>
+    </div>
   );
-};
+});
+
+FAQItem.displayName = "FAQItem";
 
 // Main FAQ Component
 const FAQAccordion = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndexes, setOpenIndexes] = useState<Set<number>>(new Set([0]));
   const sectionRef = useRef<HTMLElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const fadeUpVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i: number = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.25, 1] as Easing,
+  // Detect mobile for performance tweaks
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleToggle = useCallback((index: number) => {
+    setOpenIndexes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const openAll = useCallback(() => {
+    setOpenIndexes(new Set(faqs.map((_, i) => i)));
+  }, []);
+
+  const closeAll = useCallback(() => {
+    setOpenIndexes(new Set());
+  }, []);
+
+  const allOpen = openIndexes.size === faqs.length;
+
+  // Simplified variants for mobile – smaller movement, faster timing
+  const fadeUpVariants: Variants = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: 15 },
+      visible: (i: number = 0) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+          delay: i * 0.05,
+          duration: 0.4,
+          ease: "easeOut" as Easing,
+        },
+      }),
+    }),
+    [],
+  );
+
+  const titleVariants: Variants = useMemo(
+    () => ({
+      hidden: { opacity: 0, scale: 0.96 },
+      visible: {
+        opacity: 1,
+        scale: 1,
+        transition: { duration: 0.4, ease: "easeOut" as Easing },
       },
     }),
-  };
-
-  const titleVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
-  };
+    [],
+  );
 
   return (
     <section
       ref={sectionRef}
       dir="rtl"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#0a0a0f] to-[#050508] py-24 sm:py-32"
+      className="relative w-full overflow-hidden bg-gradient-to-b from-[#0a0a0f] to-[#050508] py-12 sm:py-24"
     >
-      {/* Background decorative elements */}
+      {/* Decorative background – lighter on mobile */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-purple-800/10 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 -left-32 sm:-left-48 w-48 sm:w-96 h-48 sm:h-96 bg-purple-600/5 sm:bg-purple-600/10 rounded-full blur-[60px] sm:blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-32 sm:-right-48 w-48 sm:w-96 h-48 sm:h-96 bg-purple-800/5 sm:bg-purple-800/10 rounded-full blur-[60px] sm:blur-[120px]" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-        {/* Section Header */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-8 lg:px-12">
+        {/* Header */}
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: "-50px" }}
+          className="text-center mb-8 sm:mb-16"
         >
           {/* Badge */}
           <motion.div
             variants={fadeUpVariants}
             custom={0}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 backdrop-blur-sm"
-            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 mb-4 sm:mb-6 backdrop-blur-sm"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "tween", duration: 0.2 }}
           >
             <motion.div
               animate={{
@@ -217,9 +299,9 @@ const FAQAccordion = () => {
                 ease: "easeInOut",
               }}
             >
-              <Zap className="h-3.5 w-3.5 text-purple-400" />
+              <Zap className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-purple-400" />
             </motion.div>
-            <span className="text-xs font-medium tracking-wider text-gray-300 uppercase">
+            <span className="text-[10px] sm:text-xs font-medium tracking-wider text-gray-300 uppercase">
               المعرفة المفتوحة
             </span>
           </motion.div>
@@ -227,10 +309,10 @@ const FAQAccordion = () => {
           {/* Title */}
           <motion.h2
             variants={titleVariants}
-            className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-white"
+            className="text-3xl sm:text-5xl md:text-6xl font-black mb-3 sm:mb-6 text-white"
             style={{
               fontFamily: "Somar Medium, 'Segoe UI', system-ui, sans-serif",
-              textShadow: "0 0 40px rgba(168, 85, 247, 0.2)",
+              textShadow: isMobile ? "none" : "0 0 40px rgba(168, 85, 247, 0.2)",
             }}
           >
             الأسئلة الشائعة
@@ -240,50 +322,72 @@ const FAQAccordion = () => {
           <motion.p
             variants={fadeUpVariants}
             custom={1}
-            className="text-xl text-gray-400 max-w-2xl mx-auto"
+            className="text-sm sm:text-xl text-gray-400 max-w-2xl mx-auto px-2"
           >
             كل ما تريد معرفته عن خدماتنا ونماذج العمل والتكاليف في مكان واحد
           </motion.p>
         </motion.div>
 
-        {/* FAQ Accordion */}
+        {/* FAQ Container */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-black/30 backdrop-blur-sm rounded-2xl border border-purple-500/10 p-4 sm:p-6 shadow-2xl"
+          viewport={{ once: true, margin: "-30px" }}
+          transition={{ duration: 0.3, delay: 0.1 }}
         >
-          {faqs.map((faq, index) => (
-            <FAQItem
-              key={index}
-              faq={faq}
-              index={index}
-              isOpen={openIndex === index}
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-            />
-          ))}
+          <div className="flex items-center justify-between mb-3 sm:mb-4 px-2 sm:px-6">
+            <button
+              onClick={allOpen ? closeAll : openAll}
+              className="text-[11px] sm:text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1 touch-manipulation"
+              style={{ WebkitTapHighlightColor: "transparent" }}
+            >
+              {allOpen ? "إغلاق الكل" : "فتح الكل"}
+              <motion.span
+                animate={{ rotate: allOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              </motion.span>
+            </button>
+          </div>
+
+          <div className="bg-black/20 sm:bg-black/30 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-500/10 p-2 sm:p-6 shadow-xl sm:shadow-2xl">
+            {faqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                faq={faq}
+                index={index}
+                isOpen={openIndexes.has(index)}
+                onToggle={() => handleToggle(index)}
+              />
+            ))}
+          </div>
         </motion.div>
 
         {/* Footer CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-center mt-16"
+          viewport={{ once: true, margin: "-30px" }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="text-center mt-8 sm:mt-16 px-4"
         >
-          <p className="text-gray-400 mb-6">
+          <p className="text-gray-400 text-xs sm:text-base mb-3 sm:mb-6">
             لم تجد إجابة لسؤالك؟ تواصل معنا مباشرة
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-purple-600/20 border border-purple-500/40 text-white font-medium hover:bg-purple-600/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20"
+          <motion.a
+            href="https://t.me/OnRequest_dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "tween", duration: 0.1 }}
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-purple-600/20 border border-purple-500/40 text-white text-sm sm:text-base font-medium hover:bg-purple-600/30 active:bg-purple-600/40 transition-colors duration-150 touch-manipulation"
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
-            <HelpCircle className="h-4 w-4" />
-            اتصل بفريق الدعم
-          </motion.button>
+            <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            تواصل مع الدعم
+          </motion.a>
         </motion.div>
       </div>
     </section>

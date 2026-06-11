@@ -1,10 +1,10 @@
-// components/ui/onrequest-footer.tsx
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
-import { MapPin, Phone } from "lucide-react";
+import { MapPin, Phone, Mail, Sparkles, ExternalLink } from "lucide-react";
+import { FaTelegramPlane, FaWhatsapp, FaYoutube, FaInstagram } from "react-icons/fa";
 
 // ==================== TextHoverEffect محسن ====================
 export const TextHoverEffect = ({
@@ -44,7 +44,7 @@ export const TextHoverEffect = ({
       className={cn("select-none cursor-default", className)}
     >
       <defs>
-        <linearGradient id="textGradient" gradientUnits="userSpaceOnUse">
+        <linearGradient id="textGradient" gradientUnits="userSpaceOnUse" cx="50%" cy="0%">
           {hovered && (
             <>
               <stop offset="0%" stopColor="#a855f7" />
@@ -71,7 +71,7 @@ export const TextHoverEffect = ({
         </mask>
       </defs>
 
-      {/* Base outline - visible always */}
+      {/* Base outline */}
       <text
         x="50%"
         y="50%"
@@ -84,14 +84,14 @@ export const TextHoverEffect = ({
         {text}
       </text>
 
-      {/* Animated drawing stroke */}
+      {/* Animated stroke */}
       <motion.text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.4"
-        className="fill-transparent stroke-purple-500/40 font-bold"
+        className="fill-transparent stroke-purple-500/30 font-bold"
         style={{ fontSize: 'clamp(40px, 10vw, 90px)' }}
         initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
         animate={{ strokeDashoffset: 0, strokeDasharray: 1000 }}
@@ -130,69 +130,71 @@ export const FooterBackgroundGradient = () => {
   );
 };
 
-// ==================== أيقونات SVG ====================
-const LinkedInIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect width="4" height="12" x="2" y="9" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
-
-const TwitterIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-  </svg>
-);
-
-const GithubIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-    <path d="M9 18c-4.51 2-5-2-7-2" />
-  </svg>
-);
-
-const MailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="16" x="2" y="4" rx="2" />
-    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-  </svg>
-);
-
-const SparklesIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.05 5.526a1 1 0 0 0 .846.803l5.6.7a1 1 0 0 1 .568 1.738l-4.24 3.69a1 1 0 0 0-.31.93l1.32 5.88a1 1 0 0 1-1.48 1.07l-4.82-2.74a1 1 0 0 0-.99 0l-4.82 2.74a1 1 0 0 1-1.48-1.07l1.32-5.88a1 1 0 0 0-.31-.93l-4.24-3.69a1 1 0 0 1 .568-1.738l5.6-.7a1 1 0 0 0 .846-.803l1.05-5.526Z" />
-  </svg>
-);
-
 // ==================== الفوتر ====================
 export function OnRequestFooter() {
+  // روابط التواصل الاجتماعي
   const socialLinks = [
-    { icon: <TwitterIcon />, label: "Twitter", href: "#" },
-    { icon: <LinkedInIcon />, label: "LinkedIn", href: "#" },
-    { icon: <GithubIcon />, label: "GitHub", href: "#" },
-    { icon: <MailIcon />, label: "Email", href: "mailto:info@onrequest.com" },
+    { 
+      icon: FaTelegramPlane, 
+      href: "https://t.me/OnRequest_dev", 
+      label: "تلغرام",
+    },
+    { 
+      icon: FaWhatsapp, 
+      href: "https://wa.me/79610195064", 
+      label: "واتساب",
+    },
+    { 
+      icon: FaYoutube, 
+      href: "https://youtube.com/@OnRequest_dev", 
+      label: "يوتيوب",
+    },
+    { 
+      icon: FaInstagram, 
+      href: "https://www.instagram.com/onrequest.dev", 
+      label: "انستغرام",
+    },
   ];
 
-  const footerLinks = [
-    {
-      title: "الخدمات",
-      links: ["تطبيقات الموبايل", "مواقع الويب", "الحوسبة السحابية", "الأمن السيبراني"],
-    },
-    {
-      title: "الشركة",
-      links: ["من نحن", "فريق العمل", "شركاؤنا", "تواصل معنا"],
-    },
+  // روابط سريعة
+  const navLinks = [
+    { name: "الرئيسية", href: "#home" },
+    { name: "الخدمات", href: "#services" },
+    { name: "الأعمال", href: "#portfolio" },
+    { name: "المميزات", href: "#features" },
+    { name: "الفريق", href: "#team" },
+    { name: "الأسئلة", href: "#qa" },
+    { name: "التواصل", href: "#contact" },
   ];
 
+  // روابط الخدمات
+  const servicesLinks = [
+    { name: "تطبيقات الموبايل", href: "#" },
+    { name: "مواقع الويب", href: "#" },
+    { name: "أنظمة متكاملة", href: "#" },
+    { name: "تصميم UI/UX", href: "#" },
+  ];
+
+  // معلومات التواصل
   const contactInfo = [
-    { icon: <MailIcon />, text: "info@onrequest.com", href: "mailto:info@onrequest.com" },
-    { icon: <Phone size={16} className="text-purple-400" />, text: "+966 50 000 0000", href: "tel:+966500000000" },
-    { icon: <MapPin size={16} className="text-purple-400" />, text: "الرياض، المملكة العربية السعودية" },
+    { 
+      icon: Mail, 
+      text: "commerce.onrequest@gmail.com", 
+      href: "mailto:commerce.onrequest@gmail.com",
+    },
+    { 
+      icon: Phone, 
+      text: "+7 961 019 5064", 
+      href: "https://wa.me/79610195064",
+    },
+    { 
+      icon: MapPin, 
+      text: "سوريا، إدلب",
+    },
   ];
 
   return (
-    <footer className="relative w-full bg-[#060608] overflow-hidden border-t border-gray-800/20">
+    <footer className="relative w-full bg-[#060608] overflow-hidden border-t border-purple-500/10">
       {/* Background Gradient */}
       <FooterBackgroundGradient />
 
@@ -205,65 +207,98 @@ export function OnRequestFooter() {
           <div className="lg:col-span-4 flex flex-col space-y-4">
             <div className="flex items-center gap-2.5">
               <span className="text-purple-400">
-                <SparklesIcon />
+                <Sparkles size={22} />
               </span>
               <span className="text-white text-2xl font-extrabold tracking-tight">
                 OnRequest
               </span>
             </div>
             <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-              استثمارات رقمية ذكية تجمع بين التكنولوجيا المتطورة والفرص الاستثمارية الواعدة.
+              حلول برمجية متكاملة تجمع بين التكنولوجيا المتطورة والتصميم الاحترافي.
             </p>
-            {/* Social Links */}
-            <div className="flex gap-4 pt-2">
-              {socialLinks.map((link, i) => (
-                <a
-                  key={i}
-                  href={link.href}
-                  className="text-gray-600 hover:text-purple-400 transition-colors duration-300"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={link.label}
-                >
-                  {link.icon}
-                </a>
-              ))}
+            
+            {/* Social Links - بنفسجي موحد */}
+            <div className="flex gap-2 pt-2">
+              {socialLinks.map((link, i) => {
+                const IconComponent = link.icon;
+                return (
+                  <motion.a
+                    key={i}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={link.label}
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 hover:border-purple-400/40 text-purple-400 hover:text-purple-300"
+                  >
+                    <IconComponent size={15} />
+                  </motion.a>
+                );
+              })}
             </div>
           </div>
 
-          {/* Links - 2 cols each */}
-          {footerLinks.map((section) => (
-            <div key={section.title} className="lg:col-span-2">
-              <h4 className="text-white text-sm font-semibold mb-5 tracking-wide">
-                {section.title}
-              </h4>
-              <ul className="space-y-3">
-                {section.links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-gray-500 hover:text-gray-300 transition-colors duration-300 text-sm"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* روابط سريعة - 2 cols */}
+          <div className="lg:col-span-2">
+            <h4 className="text-white text-sm font-semibold mb-5 tracking-wide">
+              روابط سريعة
+            </h4>
+            <ul className="space-y-2.5">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-gray-500 hover:text-purple-400 transition-colors duration-300 text-sm"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          {/* Contact - 4 cols */}
+          {/* خدماتنا - 2 cols */}
+          <div className="lg:col-span-2">
+            <h4 className="text-white text-sm font-semibold mb-5 tracking-wide">
+              خدماتنا
+            </h4>
+            <ul className="space-y-2.5">
+              {servicesLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-gray-500 hover:text-purple-400 transition-colors duration-300 text-sm"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* تواصل معنا - 4 cols */}
           <div className="lg:col-span-4">
             <h4 className="text-white text-sm font-semibold mb-5 tracking-wide">
               تواصل معنا
             </h4>
             <ul className="space-y-4">
               {contactInfo.map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-500">
-                  <span className="flex-shrink-0">{item.icon}</span>
+                <li key={i} className="flex items-start gap-3 text-gray-500 group">
+                  <span className="flex-shrink-0 mt-0.5 text-purple-400">
+                    <item.icon size={16} />
+                  </span>
                   {item.href ? (
-                    <a href={item.href} className="hover:text-gray-300 transition-colors duration-300 text-sm">
+                    <a 
+                      href={item.href} 
+                      target={item.href.startsWith('http') ? '_blank' : undefined}
+                      rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="hover:text-purple-400 transition-colors duration-300 text-sm flex items-center gap-1"
+                    >
                       {item.text}
+                      {item.href.startsWith('http') && (
+                        <ExternalLink size={12} className="opacity-50" />
+                      )}
                     </a>
                   ) : (
                     <span className="text-sm">{item.text}</span>
@@ -275,17 +310,17 @@ export function OnRequestFooter() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-800/30 my-10" />
+        <div className="border-t border-purple-500/10 my-10" />
 
         {/* Copyright */}
         <div className="text-center">
           <p className="text-gray-600 text-sm">
-            &copy; {new Date().getFullYear()} OnRequest. جميع الحقوق محفوظة. استثمارات رقمية ذكية.
+            &copy; {new Date().getFullYear()} OnRequest. جميع الحقوق محفوظة. تطوير حلول برمجية احترافية.
           </p>
         </div>
       </div>
 
-      {/* ==================== OnRequest TextHoverEffect - يظهر على جميع الأجهزة ==================== */}
+      {/* ==================== TextHoverEffect ==================== */}
       <div className="w-full h-40 sm:h-52 md:h-64 lg:h-72 relative -mt-4 overflow-hidden">
         <TextHoverEffect text="OnRequest" className="z-20" />
       </div>
