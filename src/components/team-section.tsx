@@ -473,9 +473,9 @@ React.useEffect(() => {
               الخبراء
             </span>
           </h2>
-          <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
+          {/* <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
             فريق يجمع بين الخبرة المالية العميقة والتميز التقني
-          </p>
+          </p> */}
         </motion.div>
 
         {/* Card Stack */}

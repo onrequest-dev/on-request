@@ -9,10 +9,10 @@ const About: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 border-b-4 border-yellow-500 inline-block pb-2">
             من نحن
           </h2>
-          <p className="text-gray-300 text-lg leading-relaxed mt-8">
+          {/* <p className="text-gray-300 text-lg leading-relaxed mt-8">
             OnRequest هي شركة رائدة في مجال <span className="text-yellow-400 font-semibold">الاستثمارات الرقمية</span>،
             نقدم حلولاً مبتكرة تجمع بين التكنولوجيا المالية والذكاء الاصطناعي لتمكين المستثمرين من تحقيق أقصى عوائدهم.
-          </p>
+          </p> */}
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="p-6 bg-white/5 rounded-2xl backdrop-blur-sm border border-white/10">
               <div className="text-yellow-400 text-3xl mb-3">🚀</div>
