@@ -598,7 +598,7 @@ export function TeamSection() {
       nameAr: "أحمد الابراهيم",
       roleAr: "Content Creator",
       bio: "Photographer videographer Content Creator مسؤول عن انتاج وتصوير المحتوى البصري والاعلانات",
-      image: "/img/team/rama.webp",
+      image: "/img/team/ahmad.webp",
       specialties: [],
       category: "Content",
     },
@@ -608,7 +608,7 @@ export function TeamSection() {
       roleAr: "مدير المشاريع والتنسيق",
       bio: "حلقة الوصل بين العميل وفريق التطوير. يتأكد من وضوح المتطلبات منذ البداية، ويلتزم بالاتفاقات والمواعيد. يضمن سير العمل بسلاسة ويحافظ على توافق المخرجات مع توقعات العميل.",
       image: "/img/team/mohamedkhalel.webp",
-      specialties:[],
+      specialties: [],
       category: "Client Relations",
     },
     {
